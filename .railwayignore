@@ -1,0 +1,8 @@
+node_modules/
+cms-data.json
+quotes.json
+contacts.json
+newsletter.json
+screenshot-*.png
+screenshots/
+.git/
