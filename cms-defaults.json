@@ -1,0 +1,447 @@
+{
+  "global": {
+    "companyName": "Shiny Rhino",
+    "tagline": "Carpet Cleaning",
+    "phone": "1-800-555-RHINO",
+    "phoneRaw": "1-800-555-7446",
+    "email": "info@shinyrhino.com",
+    "hours": {
+      "weekday": "Mon-Fri: 7am - 8pm",
+      "saturday": "Sat: 8am - 5pm",
+      "sunday": "Sun: Closed"
+    },
+    "social": {
+      "facebook": "#",
+      "instagram": "#",
+      "tiktok": "#",
+      "youtube": "#"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Professional Deep Cleaning You Can Trust",
+      "subtitle": "Shiny Rhino provides expert carpet, upholstery, and floor cleaning services for homes and businesses.",
+      "ctaPrimary": "Get an Instant Quote",
+      "ctaSecondary": "Call 1-800-555-RHINO"
+    },
+    "quoteCalc": {
+      "title": "Calculate Your Instant, No-Strings-Attached Quote",
+      "tabHome": "For Home",
+      "tabBusiness": "For Business"
+    },
+    "servicesTitle": "More Than Just Carpet Cleaning",
+    "servicesSubtitle": "From floors to furniture to emergency restoration, Shiny Rhino handles it all.",
+    "trust": {
+      "title": "Your First Choice in Clean",
+      "description": "Since our start, Shiny Rhino has been trusted by thousands of homeowners and businesses to deliver spotless results. After all these years, there's a reason we remain the leader in clean.",
+      "items": [
+        { "title": "25+ Years of Experience", "description": "Over two decades of trusted professional cleaning across the nation.", "icon": "star" },
+        { "title": "Trained & Certified Technicians", "description": "Every technician is IICRC certified and background checked.", "icon": "badge" },
+        { "title": "Proven & Reliable Process", "description": "Our proprietary hot water extraction system delivers outstanding results.", "icon": "check" },
+        { "title": "Family-Safe Solutions", "description": "Non-toxic, eco-friendly solutions safe for your entire household.", "icon": "shield" }
+      ]
+    },
+    "stats": [
+      { "number": "25+", "label": "Years Experience" },
+      { "number": "50K+", "label": "Happy Customers" },
+      { "number": "100%", "label": "Satisfaction Rate" },
+      { "number": "24/7", "label": "Emergency Service" }
+    ],
+    "blog": {
+      "title": "The Dirt on Clean",
+      "subtitle": "Tips, tricks, and insights from our cleaning experts.",
+      "posts": [
+        { "title": "10 Hard-to-Reach Spots We Clean For You", "category": "Tips & Tricks", "excerpt": "From behind the fridge to under the sofa, here's what our pros tackle that you shouldn't have to." },
+        { "title": "Spring Cleaning: Why Your Carpet Needs a Reset", "category": "Seasonal", "excerpt": "Winter tracked in more than you think. Here's why a professional spring clean makes all the difference." },
+        { "title": "DIY vs Pro Carpet Cleaning: Who Wins?", "category": "Meet the Services", "excerpt": "We break down the real differences between rental machines and professional deep cleaning." }
+      ]
+    }
+  },
+  "services": {
+    "carpet": {
+      "title": "Carpet Cleaning",
+      "heroText": "For over 25 years, Shiny Rhino has been the professional carpet cleaning expert people trust to deliver the best carpet cleaning service available.",
+      "quoteTitle": "Get Closer to a Cleaner Carpet",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Our carpet cleaning process uses hot water extraction to remove dirt, allergens, bacteria, and stains from deep within your carpet fibers. Unlike surface cleaning methods, our process reaches the base of your carpet where the worst contaminants hide.",
+      "process": {
+        "title": "How We Clean Carpet",
+        "steps": [
+          { "title": "Pre-Inspection", "description": "We examine your carpet to identify problem areas, stains, and the best cleaning approach for your fiber type." },
+          { "title": "Pre-Treatment", "description": "Our advanced pre-spray breaks down embedded soiling and tough stains before the main cleaning begins." },
+          { "title": "Hot Water Extraction", "description": "Using our proprietary equipment, we inject hot water and cleaning solution deep into fibers, then extract everything along with the dirt." }
+        ]
+      },
+      "features": [
+        { "title": "Advanced Pre-Spray Breaks Down Soiling", "description": "Our specially formulated pre-spray loosens ground-in dirt and stains before extraction." },
+        { "title": "Remove Embedded Dirt, Allergens & More", "description": "Our process removes up to 99% of common household allergens from carpet." },
+        { "title": "Powerful Results with Proprietary Equipment", "description": "Truck-mounted equipment provides consistent heat and suction power." },
+        { "title": "Fast Drying Times", "description": "Most carpets are dry within 6-12 hours of cleaning." }
+      ],
+      "faq": [
+        { "q": "How long will it take to clean my carpets?", "a": "Most homes take 1-3 hours depending on size. A typical 3-bedroom home averages about 2 hours." },
+        { "q": "How long will it take for my carpet to dry after a cleaning?", "a": "Carpets typically dry within 6-12 hours. We recommend good ventilation to speed drying." },
+        { "q": "Do you move furniture?", "a": "Yes, we move most standard furniture as part of the service. We ask that you move small, fragile, and valuable items beforehand." },
+        { "q": "What method do you use for carpet cleaning?", "a": "We use hot water extraction, which is the method recommended by major carpet manufacturers." },
+        { "q": "Where can I find carpet cleaning services near me?", "a": "Enter your zip code on our locations page or call 1-800-555-RHINO to find your nearest Shiny Rhino." }
+      ],
+      "commercial": {
+        "title": "Commercial Carpet Cleaning",
+        "description": "Whether it's a small office or a large commercial facility, Shiny Rhino provides customized carpet cleaning programs designed for your business needs. Our flexible scheduling minimizes disruption to your operations."
+      }
+    },
+    "upholstery": {
+      "title": "Furniture & Upholstery Cleaning",
+      "heroText": "Upholstery can trap dirt, allergens and soils that wear down fibers and dull appearance. With upholstery cleaning from Shiny Rhino, your furniture will be refreshed and revitalized.",
+      "quoteTitle": "Get Closer to Cleaner Furniture",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Professional upholstery cleaning from Shiny Rhino removes the dirt, allergens, and stains that regular vacuuming leaves behind. Our trained technicians assess each piece of furniture to determine the safest, most effective cleaning method.",
+      "process": {
+        "title": "How We Clean Upholstery",
+        "steps": [
+          { "title": "Fabric Assessment", "description": "We test and identify your fabric type to determine the ideal cleaning method and solutions." },
+          { "title": "Pre-Treatment", "description": "Stains and high-traffic areas receive targeted pre-treatment to break down embedded soils." },
+          { "title": "Deep Clean & Extract", "description": "Our gentle yet thorough process cleans deep into upholstery fibers while preserving fabric integrity." }
+        ]
+      },
+      "features": [
+        { "title": "A Tailored Approach", "description": "Different fabrics require different methods. We customize our approach for each piece." },
+        { "title": "Remove Dirt and Allergens", "description": "Our cleaning removes allergens trapped deep in upholstery fibers." },
+        { "title": "Steam Cleaning Dry Within Hours", "description": "Most furniture is ready to use the same day." },
+        { "title": "Odor Neutralization", "description": "We don't just mask smells - we eliminate odors from pets, kids, and daily use." }
+      ],
+      "faq": [
+        { "q": "How long will it take for my furniture to dry?", "a": "Most upholstered furniture dries within 4-6 hours depending on fabric type and ventilation." },
+        { "q": "Can you steam clean upholstery?", "a": "Yes, steam cleaning is one of several methods we use depending on your fabric type." },
+        { "q": "How to clean upholstery?", "a": "While regular vacuuming helps, professional deep cleaning is recommended every 12-18 months." },
+        { "q": "How does Shiny Rhino clean upholstery?", "a": "We assess the fabric, pre-treat stains, then use the appropriate method to deep clean without damaging the material." }
+      ],
+      "commercial": {
+        "title": "Commercial Upholstery Cleaning",
+        "description": "Keep your office furniture, waiting room chairs, and conference room seating looking professional. We offer flexible scheduling to minimize disruption to your business."
+      }
+    },
+    "tile": {
+      "title": "Tile & Grout Cleaning",
+      "heroText": "Cleaning tile floors by hand is hard work. It's messy, uncomfortable and impossible to get the deep-clean results that come with professional tile and grout cleaning.",
+      "quoteTitle": "Get Closer to Cleaner Tile",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Over time, tile floors lose their luster as dirt and grime become embedded in grout lines and tile surfaces. Our professional tile and grout cleaning restores the original beauty of your floors using high-pressure cleaning and specialized solutions.",
+      "process": {
+        "title": "How We Clean Tile & Grout",
+        "steps": [
+          { "title": "Inspection & Pre-Treat", "description": "We examine your tile and grout to identify the best approach, then apply a specialized alkaline cleaning solution." },
+          { "title": "High-Pressure Cleaning", "description": "Our high-pressure tool blasts away years of built-up dirt and grime from grout lines and tile surfaces." },
+          { "title": "Seal & Protect", "description": "We apply a professional-grade sealant to grout lines to prevent future staining and make maintenance easier." }
+        ]
+      },
+      "features": [
+        { "title": "High-Pressure Equipment", "description": "Our specialized tools clean deep into porous grout lines where mops can't reach." },
+        { "title": "Free Cleaning Demonstration", "description": "See the difference before committing - we'll clean a test area so you can see the results." },
+        { "title": "Stain-Resistant Grout Sealant", "description": "Our sealant creates a protective barrier that prevents future staining." },
+        { "title": "Restore or Change Grout Color", "description": "We can restore your grout to its original color or apply a new color entirely." }
+      ],
+      "faq": [
+        { "q": "How often should I have my tile and grout cleaned?", "a": "We recommend professional cleaning every 12-18 months for most homes." },
+        { "q": "Will cleaning damage my tile?", "a": "No, our process is safe for all types of tile including ceramic, porcelain, and natural stone." },
+        { "q": "How long does tile and grout cleaning take?", "a": "Most residential jobs take 2-4 hours depending on the area size." },
+        { "q": "Do you seal the grout after cleaning?", "a": "Yes, grout sealing is available as an add-on service and is highly recommended." }
+      ],
+      "commercial": {
+        "title": "Commercial Tile & Grout Cleaning",
+        "description": "Restaurants, retail spaces, and office buildings with tile floors need regular professional cleaning to maintain appearance and hygiene. We offer scheduled maintenance programs."
+      }
+    },
+    "hardwood": {
+      "title": "Hardwood Floor Cleaning",
+      "heroText": "When you sweep and mop to clean hardwood floors, you're not removing all dirt. Professional hardwood cleaning requires deep dirt extraction to protect and preserve your investment.",
+      "quoteTitle": "Get Closer to Cleaner Hardwood",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Hardwood floors are a beautiful investment that deserve specialized care. Our hardwood floor cleaning service uses a gentle yet effective process that removes embedded dirt, restores natural shine, and extends the life of your floors without the harsh chemicals that can damage wood.",
+      "process": {
+        "title": "How We Clean Hardwood Floors",
+        "steps": [
+          { "title": "Dust & Debris Removal", "description": "We start with thorough dust mopping to remove surface particles that could scratch during cleaning." },
+          { "title": "Deep Clean", "description": "Our pH-balanced solution safely loosens and lifts embedded dirt without damaging the wood finish." },
+          { "title": "Buff & Protect", "description": "We finish with a professional-grade wood floor conditioner that restores shine and provides a protective layer." }
+        ]
+      },
+      "features": [
+        { "title": "Specialized Equipment", "description": "Our hardwood-specific tools clean thoroughly without scratching or over-wetting." },
+        { "title": "Attention to Detail", "description": "We clean along baseboards, in corners, and in hard-to-reach areas." },
+        { "title": "Remove Dirt, Allergens and More", "description": "Our process extracts allergens and particles trapped between floorboards." },
+        { "title": "pH-Balanced Solution", "description": "Safe for all finished hardwood types including oak, maple, cherry, and more." }
+      ],
+      "faq": [
+        { "q": "Is your cleaning safe for all hardwood floors?", "a": "Yes, our pH-balanced cleaning solution is safe for all types of sealed hardwood floors." },
+        { "q": "How often should I clean my hardwood floors professionally?", "a": "We recommend professional cleaning every 12-18 months, with regular sweeping and dusting in between." },
+        { "q": "Will your process damage the finish?", "a": "No, our gentle cleaning method is designed to protect and enhance your existing finish." },
+        { "q": "How long does it take for hardwood floors to dry?", "a": "Hardwood floors are typically dry within 1-2 hours after our service." }
+      ],
+      "commercial": {
+        "title": "Commercial Hardwood Floor Cleaning",
+        "description": "Keep your office, retail, or restaurant hardwood floors looking their best with our commercial cleaning programs. Flexible scheduling available for after-hours service."
+      }
+    },
+    "rug": {
+      "title": "Area Rug Cleaning",
+      "heroText": "Vacuuming alone won't keep your area rugs free from dirt, dust and allergens. Professional rug cleaning keeps your rugs looking beautiful and extends their life.",
+      "quoteTitle": "Get Closer to a Cleaner Rug",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Area rugs deserve specialized attention. Whether you have a hand-knotted Oriental rug, a delicate silk piece, or a durable synthetic rug, our trained technicians know exactly how to clean each type safely and effectively.",
+      "process": {
+        "title": "How We Clean Area Rugs",
+        "steps": [
+          { "title": "Careful Inspection", "description": "We examine fiber type, dye stability, and construction to determine the safest cleaning approach." },
+          { "title": "Specialized Cleaning", "description": "Using the appropriate method for your rug type, we deep clean while preserving colors and fibers." },
+          { "title": "Grooming & Drying", "description": "We groom the fibers for a uniform appearance and ensure proper drying to prevent mold." }
+        ]
+      },
+      "features": [
+        { "title": "Expert Assessment", "description": "Every rug is inspected for fiber type, colorfastness, and pre-existing conditions." },
+        { "title": "Free Demonstration", "description": "We'll clean a small test area first so you can approve the results." },
+        { "title": "Oriental & Fine Rug Specialists", "description": "Trained in handling delicate, valuable, and antique rugs." },
+        { "title": "Odor Elimination", "description": "Pet odors, smoke, and musty smells are neutralized at the source." }
+      ],
+      "faq": [
+        { "q": "Can you clean Oriental rugs?", "a": "Yes, our technicians are specially trained in handling Oriental, Persian, and other fine area rugs." },
+        { "q": "Do you pick up and deliver area rugs?", "a": "Yes, we offer pickup and delivery for area rugs that benefit from in-plant cleaning." },
+        { "q": "How long does area rug cleaning take?", "a": "In-home cleaning usually takes 1-2 hours. In-plant cleaning may take 5-7 business days." },
+        { "q": "Will cleaning shrink my area rug?", "a": "No, our careful process and controlled drying prevent shrinkage." }
+      ],
+      "commercial": {
+        "title": "Commercial Area Rug Cleaning",
+        "description": "Hotels, restaurants, and offices with area rugs benefit from our professional cleaning to maintain appearance and extend rug life."
+      }
+    },
+    "stone": {
+      "title": "Natural Stone Cleaning",
+      "heroText": "Natural stone floors won't come completely clean from regular mopping. Stone tile is incredibly porous, which means the surface absorbs stains and dirt over time.",
+      "quoteTitle": "Get Closer to Cleaner Stone",
+      "quoteSubtitle": "Available in select locations",
+      "content": "Natural stone surfaces like marble, granite, travertine, limestone, and slate require specialized cleaning knowledge. Our stone care experts understand the unique properties of each stone type and use appropriate methods to clean without damaging these beautiful surfaces.",
+      "stoneTypes": ["Travertine", "Marble", "Limestone", "Slate", "Granite", "Flagstone", "Concrete", "Terrazzo"],
+      "process": {
+        "title": "How We Clean Natural Stone",
+        "steps": [
+          { "title": "Stone Assessment", "description": "We identify your stone type and any existing damage or staining to create a customized cleaning plan." },
+          { "title": "Deep Clean", "description": "Using stone-safe solutions and equipment, we extract deeply embedded dirt and stains." },
+          { "title": "Seal & Protect", "description": "We apply a professional sealant to protect your stone from future staining and wear." }
+        ]
+      },
+      "features": [
+        { "title": "Stone-Safe Solutions", "description": "Our pH-neutral cleaners are formulated specifically for natural stone surfaces." },
+        { "title": "Stain Removal", "description": "We can address many types of stains including water marks, etching, and organic stains." },
+        { "title": "Professional Sealing", "description": "Our sealant creates an invisible barrier against future staining." },
+        { "title": "Restoration Available", "description": "We offer honing and polishing services to restore the finish of worn stone." }
+      ],
+      "faq": [
+        { "q": "What types of stone do you clean?", "a": "We clean marble, granite, travertine, limestone, slate, flagstone, terrazzo, and more." },
+        { "q": "Is your cleaning process safe for polished marble?", "a": "Yes, our stone-safe solutions and methods preserve the polish and integrity of marble." },
+        { "q": "How often should natural stone be cleaned?", "a": "Professional cleaning is recommended every 12-24 months, depending on traffic and use." }
+      ]
+    },
+    "water": {
+      "title": "Water Damage Restoration",
+      "heroText": "Is your home in need of emergency water remediation? Shiny Rhino is available 24/7 to dispatch trained crews specializing in water damage restoration.",
+      "quoteTitle": "Call Us 24/7",
+      "quoteSubtitle": "at 1-800-555-RHINO",
+      "content": "When water damage strikes, every minute counts. Our rapid response team is available 24 hours a day, 7 days a week to begin the water extraction and drying process. Quick action helps minimize damage, reduce restoration costs, and prevent mold growth.",
+      "process": {
+        "title": "Our Water Restoration Process",
+        "steps": [
+          { "title": "Emergency Response", "description": "Our team arrives quickly to assess the damage and begin water extraction immediately." },
+          { "title": "Water Extraction & Drying", "description": "We use powerful extraction equipment and industrial dehumidifiers to remove water and moisture." },
+          { "title": "Restoration & Cleaning", "description": "Once dry, we clean, sanitize, and restore affected areas to pre-damage condition." }
+        ]
+      },
+      "features": [
+        { "title": "24/7 Emergency Response", "description": "Day or night, our trained crews are ready to respond to your water emergency." },
+        { "title": "Minimize Damage & Dry Quickly", "description": "Fast response and powerful equipment reduce total damage and restoration costs." },
+        { "title": "Certified Specialists", "description": "Our water damage technicians are IICRC certified in water damage restoration." },
+        { "title": "Insurance Assistance", "description": "We work with your insurance company to streamline the claims process." }
+      ],
+      "faq": [
+        { "q": "How quickly can you respond?", "a": "Our emergency teams are dispatched immediately and typically arrive within a few hours of your call." },
+        { "q": "Do you work with insurance companies?", "a": "Yes, we work directly with most major insurance companies and can help with the claims process." },
+        { "q": "What should I do before you arrive?", "a": "If safe, turn off water source. Move valuables to dry areas. Do not use electrical appliances in wet areas." }
+      ]
+    },
+    "vehicle": {
+      "title": "Car, Boat & RV Cleaning",
+      "heroText": "Interior detailing and deep cleaning for your vehicles, boats, and recreational vehicles. Get that new car feeling without the new car price.",
+      "quoteTitle": "Get Closer to a Cleaner Ride",
+      "quoteSubtitle": "with an instant quote and online scheduling",
+      "content": "Your vehicle's interior deserves the same professional attention as your home. Our trained technicians use specialized equipment and solutions to deep clean carpets, upholstery, and floor mats in your car, boat, or RV.",
+      "process": {
+        "title": "How We Clean Vehicles",
+        "steps": [
+          { "title": "Interior Assessment", "description": "We evaluate fabric types, staining, and special cleaning needs for your vehicle." },
+          { "title": "Deep Extraction Clean", "description": "Our truck-mounted equipment provides powerful suction to extract embedded dirt from vehicle interiors." },
+          { "title": "Detail & Protect", "description": "We address stains, odors, and apply protectant to keep your interior looking fresh." }
+        ]
+      },
+      "features": [
+        { "title": "Cars, Trucks & SUVs", "description": "Complete interior carpet and upholstery cleaning for all vehicle types." },
+        { "title": "Boats & Watercraft", "description": "Remove salt, mildew, and grime from marine upholstery and carpet." },
+        { "title": "RVs & Campers", "description": "Deep clean the living spaces of your recreational vehicle." },
+        { "title": "Odor Removal", "description": "Eliminate pet, smoke, and musty odors from vehicle interiors." }
+      ],
+      "faq": [
+        { "q": "Where do you clean vehicles?", "a": "We can clean your vehicle at your home or business location." },
+        { "q": "How long does vehicle interior cleaning take?", "a": "Most vehicles take 1-2 hours. Larger RVs may take 2-4 hours." }
+      ]
+    }
+  },
+  "about": {
+    "title": "Our Story",
+    "heroText": "Learn about the team behind Shiny Rhino and our commitment to clean.",
+    "content": "Shiny Rhino was founded with a simple mission: to provide the highest quality cleaning services with integrity and care. What started as a small local carpet cleaning operation has grown into a trusted name in professional cleaning services.",
+    "sections": [
+      {
+        "title": "Our Mission",
+        "text": "We believe every home and business deserves to be clean and healthy. Our mission is to deliver exceptional cleaning results using safe, effective methods that protect both your spaces and our environment."
+      },
+      {
+        "title": "Our Technicians: Students of Cleaning",
+        "text": "We know our state-of-the-art equipment is only as effective as the technician using it. That's why we train our technicians thoroughly in the methods and science of professional cleaning. Every Shiny Rhino technician is IICRC certified, background checked, and committed to delivering the best results."
+      },
+      {
+        "title": "Made in America",
+        "text": "Our cleaning products are developed and manufactured right here in the USA. We take pride in creating professional-grade solutions that deliver powerful cleaning results while remaining safe for families and pets."
+      },
+      {
+        "title": "Eco-Friendly Approach",
+        "text": "Shiny Rhino is committed to environmentally responsible cleaning. Our solutions are Green Seal certified, biodegradable, and free of harsh chemicals. We continually invest in the latest cleaning technology to reduce water usage and environmental impact."
+      }
+    ]
+  },
+  "products": {
+    "title": "Professional Grade Cleaning Products That You Can Use Yourself",
+    "items": [
+      { "name": "Shiny Rhino Spot Remover", "description": "Professional strength spot and stain remover for carpets and upholstery. Tackles tough stains like wine, coffee, and pet accidents.", "price": "$9.95" },
+      { "name": "Hardwood Floor Cleaner", "description": "pH-balanced cleaning solution specifically formulated for finished hardwood floors. Safe for daily use.", "price": "$12.95" },
+      { "name": "Hardwood Floor Cleaner Kit", "description": "Complete kit includes our Hardwood Floor Cleaner plus a professional microfiber mop for easy application.", "price": "$34.95" },
+      { "name": "Odor Out Plus", "description": "Neutralize odors from pets, kids, and everyday life. Works on carpets, upholstery, and hard surfaces.", "price": "$9.95" },
+      { "name": "Neutral Tile & Grout Cleaner", "description": "pH-neutral formula safe for all tile and grout. Cuts through grease and grime without damaging surfaces.", "price": "$9.95" },
+      { "name": "Pet-Mess Solution Kit", "description": "Everything you need to handle pet accidents between professional cleanings. Includes spot remover and odor neutralizer.", "price": "$24.95" },
+      { "name": "Pet Hair Lifter", "description": "Professional-grade rubber brush that lifts pet hair from carpets, upholstery, and clothing.", "price": "$9.95" },
+      { "name": "Gift Certificate", "description": "Give the gift of clean! Shiny Rhino Gift Certificates are available in any whole dollar amount.", "price": "Custom" }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "categories": [
+      {
+        "name": "Carpet Cleaning",
+        "questions": [
+          { "q": "How long will it take to clean my carpets?", "a": "Most residential jobs take between 1-3 hours depending on the size. A typical 3-bedroom home takes about 2 hours." },
+          { "q": "My carpet was cleaned, and now it has bubbles. What caused this?", "a": "Carpet bubbling after cleaning can occur when the carpet backing absorbs moisture. This is usually temporary and resolves as the carpet dries completely. If bubbles persist, contact us." },
+          { "q": "How long until my carpet is dry?", "a": "Carpets typically dry within 6-12 hours. Good ventilation, fans, and air conditioning can speed up drying." },
+          { "q": "Do you move furniture?", "a": "We move most standard furniture items. We ask that you move small, fragile, and valuable items beforehand." },
+          { "q": "What method do you use?", "a": "We primarily use hot water extraction, the method recommended by major carpet manufacturers." },
+          { "q": "Where can I find carpet cleaning near me?", "a": "Enter your zip code on our locations page or call 1-800-555-RHINO." }
+        ]
+      },
+      {
+        "name": "Carpet Protection",
+        "questions": [
+          { "q": "Why should I have protector applied?", "a": "Carpet protector creates a barrier that resists soiling and staining, keeping your carpets cleaner longer between professional cleanings." },
+          { "q": "How does your deodorizer work?", "a": "Our deodorizer neutralizes odors at the molecular level rather than masking them with fragrance." }
+        ]
+      },
+      {
+        "name": "Upholstery Cleaning",
+        "questions": [
+          { "q": "How long will it take for my furniture to dry?", "a": "Most upholstered furniture dries within 4-6 hours." },
+          { "q": "Can you steam clean upholstery?", "a": "Yes, steam cleaning is one of several methods we use depending on your fabric type." },
+          { "q": "How often should I clean my couch?", "a": "We recommend professional upholstery cleaning every 12-18 months, or more frequently for homes with pets or children." }
+        ]
+      },
+      {
+        "name": "Tile and Grout Cleaning",
+        "questions": [
+          { "q": "How often should tile and grout be professionally cleaned?", "a": "We recommend professional cleaning every 12-18 months for most homes." },
+          { "q": "Do you seal grout after cleaning?", "a": "Yes, grout sealing is available and highly recommended to prevent future staining." }
+        ]
+      },
+      {
+        "name": "Hardwood Cleaning",
+        "questions": [
+          { "q": "Is your cleaning safe for all hardwood floors?", "a": "Yes, our pH-balanced solution is safe for all types of sealed hardwood floors." },
+          { "q": "How often should hardwood floors be professionally cleaned?", "a": "We recommend every 12-18 months." }
+        ]
+      },
+      {
+        "name": "Natural Stone Cleaning",
+        "questions": [
+          { "q": "What types of stone do you clean?", "a": "We clean marble, granite, travertine, limestone, slate, flagstone, terrazzo, and more." },
+          { "q": "Do you seal natural stone?", "a": "Yes, sealing is included and protects your stone from future staining." }
+        ]
+      },
+      {
+        "name": "Water Damage",
+        "questions": [
+          { "q": "Do you offer 24/7 emergency service?", "a": "Yes, our emergency water damage team is available around the clock, 365 days a year." },
+          { "q": "Do you work with insurance companies?", "a": "Yes, we work directly with most major insurance providers." }
+        ]
+      },
+      {
+        "name": "General",
+        "questions": [
+          { "q": "What payment methods do you accept?", "a": "We accept all major credit cards (Visa, Mastercard, American Express, Discover), checks, and cash." },
+          { "q": "Are your products safe for pets and children?", "a": "Absolutely! We use eco-friendly, non-toxic, Green Seal certified cleaning solutions." },
+          { "q": "Do you offer commercial cleaning services?", "a": "Yes, we provide commercial cleaning for offices, restaurants, retail spaces, and more." }
+        ]
+      }
+    ]
+  },
+  "blog": {
+    "title": "The Dirt on Clean | Shiny Rhino Blog",
+    "subtitle": "Learn more about keeping your home clean and healthy.",
+    "categories": [
+      {
+        "name": "Whole Home Clean Routine",
+        "posts": [
+          { "title": "10 Hard-to-Reach Spots We Clean For You", "excerpt": "From behind the fridge to under the sofa, here's what our pros tackle that you shouldn't have to.", "date": "Feb 2026" },
+          { "title": "Keep Your Home Fresh All Year with a Deep Clean Routine", "excerpt": "A seasonal cleaning schedule that keeps your home looking and feeling its best.", "date": "Jan 2026" }
+        ]
+      },
+      {
+        "name": "Meet the Services",
+        "posts": [
+          { "title": "DIY Carpet Cleaning vs. the Pros", "excerpt": "We break down the real differences between rental machines and professional deep cleaning.", "date": "Mar 2026" },
+          { "title": "Is Your Couch Making You Sneeze?", "excerpt": "How dirty upholstery affects indoor air quality and what to do about it.", "date": "Feb 2026" },
+          { "title": "Rug Cleaning Explained: Quick Refresh vs Deep Clean", "excerpt": "Understanding when a quick clean suffices and when you need the full treatment.", "date": "Jan 2026" }
+        ]
+      },
+      {
+        "name": "Tips & Tricks",
+        "posts": [
+          { "title": "5 Ways to Keep Your Carpet Clean Between Professional Visits", "excerpt": "Simple daily habits that make a big difference for your carpet's longevity.", "date": "Feb 2026" },
+          { "title": "The Ultimate Pet Owner's Guide to Clean Floors", "excerpt": "Managing shedding, accidents, and odors with practical tips from our experts.", "date": "Jan 2026" }
+        ]
+      },
+      {
+        "name": "Seasonal",
+        "posts": [
+          { "title": "Spring Cleaning: Why Your Carpet Needs a Reset", "excerpt": "Winter tracked in more than you think. Here's why spring is the perfect time for a deep clean.", "date": "Mar 2026" },
+          { "title": "Post-Holiday Cleaning Tips", "excerpt": "Get that fresh, clean house feeling after the holiday chaos.", "date": "Dec 2025" }
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We'd love to hear from you. Reach out with questions, concerns, or to schedule a cleaning.",
+    "info": {
+      "phone": "1-800-555-RHINO",
+      "email": "info@shinyrhino.com",
+      "hours": "Mon-Fri: 7am - 8pm | Sat: 8am - 5pm"
+    }
+  },
+  "locations": {
+    "title": "Find Your Shiny Rhino",
+    "subtitle": "Enter the zip code where you need Shiny Rhino services. We'll connect you with your local team."
+  }
+}
