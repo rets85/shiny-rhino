@@ -1940,6 +1940,7 @@ function initInteractions() {
 // ---- Mobile Nav ----
 document.getElementById('mobileToggle').addEventListener('click', () => {
   document.getElementById('navLinks').classList.toggle('active');
+  document.getElementById('mobileToggle').classList.toggle('active');
 });
 
 // Mobile dropdown toggle
@@ -1956,6 +1957,7 @@ document.querySelectorAll('.has-dropdown > a').forEach(link => {
 document.querySelectorAll('.nav-links a[data-link]').forEach(link => {
   link.addEventListener('click', () => {
     document.getElementById('navLinks').classList.remove('active');
+    document.getElementById('mobileToggle').classList.remove('active');
   });
 });
 
