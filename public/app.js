@@ -154,14 +154,14 @@ function renderHome() {
   const blog = d.blog || {};
 
   const serviceList = [
-    { key: 'carpet' },
-    { key: 'upholstery' },
-    { key: 'tile' },
-    { key: 'hardwood' },
-    { key: 'rug' },
-    { key: 'stone' },
-    { key: 'vehicle' },
-    { key: 'water' },
+    { key: 'carpet', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop' },
+    { key: 'upholstery', img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop' },
+    { key: 'tile', img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=300&fit=crop' },
+    { key: 'hardwood', img: 'https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?w=400&h=300&fit=crop' },
+    { key: 'rug', img: 'https://images.unsplash.com/photo-1600166898405-da9535204843?w=400&h=300&fit=crop' },
+    { key: 'stone', img: 'https://images.unsplash.com/photo-1615971677499-5467cbab01c0?w=400&h=300&fit=crop' },
+    { key: 'vehicle', img: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=400&h=300&fit=crop' },
+    { key: 'water', img: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=300&fit=crop' },
   ];
 
   document.getElementById('app').innerHTML = `
@@ -216,9 +216,9 @@ function renderHome() {
             const svc = services[s.key] || {};
             return `
             <a href="/services/${s.key}" class="service-tile" data-link>
-              <div class="service-tile-bg"></div>
+              <img src="${s.img}" alt="${svc.title || s.key}" class="service-tile-img" loading="lazy">
+              <div class="service-tile-overlay"></div>
               <div class="service-tile-content">
-                <div class="service-tile-icon">${ICONS[s.key] || ''}</div>
                 <h3>${svc.title || s.key}</h3>
               </div>
             </a>`;
@@ -236,7 +236,7 @@ function renderHome() {
         <h2 class="section-title">${trust.title || ''}</h2>
         <div class="trust-layout">
           <div class="trust-image">
-            <img src="/logo.jpg" alt="Shiny Rhino" style="max-height:300px;object-fit:contain;">
+            <img src="/logo.jpg" alt="Shiny Rhino">
           </div>
           <div class="trust-details">
             <p style="margin-bottom:24px;color:var(--text-light);line-height:1.7;">${trust.description || ''}</p>
@@ -335,18 +335,24 @@ function renderHome() {
 
 function renderQuote() {
   const pricing = CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
+  const params = new URLSearchParams(window.location.search);
+  const isCommercial = params.get('type') === 'commercial';
   // calcState: { catIdx_itemIdx: { qty, addons: { addonIdx: bool } } }
   window._calcState = window._calcState || {};
 
   document.getElementById('app').innerHTML = `
     <div class="calc-page">
-      <div class="calc-header">
-        <a href="/" data-link class="calc-back">Back</a>
+      <div class="calc-header ${isCommercial ? 'calc-header--biz' : ''}">
         <div class="calc-header-text">
-          <h1>NO HASSLE PRICING & CLEANING</h1>
-          <p>Pick your items, see your price instantly. No surprises.</p>
+          ${isCommercial
+            ? `<h1>COMMERCIAL CLEANING SERVICES</h1><p>Custom pricing for offices, facilities & commercial spaces. Build your service package below.</p>`
+            : `<h1>NO HASSLE PRICING & CLEANING</h1><p>Pick your items, see your price instantly. No surprises.</p>`
+          }
         </div>
-        <a href="/admin" data-link class="btn btn-sm btn-outline calc-admin-link">Admin</a>
+        ${isCommercial
+          ? `<a href="/quote" data-link class="btn btn-sm btn-outline calc-switch-link">Switch to Home</a>`
+          : `<a href="/quote?type=commercial" data-link class="btn btn-sm btn-outline calc-switch-link">Business Quote</a>`
+        }
       </div>
       <div class="calc-layout">
         <div class="calc-main">
@@ -909,15 +915,18 @@ async function handleNewsletter(e) {
 }
 
 // ---- CMS Admin Page ----
+let adminActiveTab = 'pricing';
+
 function renderAdmin() {
+  const pages = Object.keys(CMS);
   const pricing = CMS.pricing || { hiddenFee: { label: 'Service Fee', amount: 0 }, categories: [] };
 
   document.getElementById('app').innerHTML = `
     <div class="admin-page">
       <div class="admin-topbar">
         <div class="admin-topbar-left">
-          <a href="/quote" data-link class="btn btn-sm btn-outline">View Quote Page</a>
-          <h1>Pricing Admin</h1>
+          <a href="/" data-link class="btn btn-sm btn-outline">View Site</a>
+          <h1>Admin Dashboard</h1>
         </div>
         <div class="admin-topbar-right">
           <button class="btn btn-sm btn-outline-dark" onclick="adminExport()">Export Config</button>
@@ -926,7 +935,33 @@ function renderAdmin() {
         </div>
       </div>
 
-      <!-- Hidden Fee -->
+      <div class="admin-tabs">
+        <button class="admin-tab ${adminActiveTab === 'pricing' ? 'active' : ''}" onclick="adminSwitchTab('pricing')">Pricing</button>
+        ${pages.filter(p => p !== 'pricing').map(p => `
+          <button class="admin-tab ${adminActiveTab === p ? 'active' : ''}" onclick="adminSwitchTab('${p}')">${p.charAt(0).toUpperCase() + p.slice(1)}</button>
+        `).join('')}
+      </div>
+
+      <div id="adminTabContent"></div>
+    </div>
+  `;
+
+  adminRenderTab();
+}
+
+function adminSwitchTab(tab) {
+  adminActiveTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab));
+  adminRenderTab();
+}
+
+function adminRenderTab() {
+  const container = document.getElementById('adminTabContent');
+  if (!container) return;
+
+  if (adminActiveTab === 'pricing') {
+    const pricing = CMS.pricing || { hiddenFee: { label: 'Service Fee', amount: 0 }, categories: [] };
+    container.innerHTML = `
       <div class="admin-section">
         <h2>Hidden Fee (not visible to customer)</h2>
         <div class="admin-fee-row">
@@ -934,15 +969,118 @@ function renderAdmin() {
           <label>Amount ($): <input type="number" id="adminFeeAmount" value="${pricing.hiddenFee?.amount || 0}" min="0" step="0.01"></label>
         </div>
       </div>
-
-      <!-- Categories -->
       <div id="adminCategories"></div>
-
       <button class="btn btn-secondary" onclick="adminAddCategory()" style="margin:24px 0 40px;">+ Add New Category</button>
-    </div>
-  `;
+    `;
+    adminRenderCategories();
+  } else {
+    const data = CMS[adminActiveTab];
+    container.innerHTML = `
+      <div class="admin-section">
+        <h2>Edit: ${adminActiveTab.charAt(0).toUpperCase() + adminActiveTab.slice(1)}</h2>
+        <div id="adminGenericEditor"></div>
+      </div>
+    `;
+    document.getElementById('adminGenericEditor').innerHTML = renderCMSFields(data, adminActiveTab, adminActiveTab);
+  }
+}
 
-  adminRenderCategories();
+// Generic CMS field renderer for all content
+function renderCMSFields(obj, path, rootPage) {
+  if (!obj || typeof obj !== 'object') return '';
+  let html = '';
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item, i) => {
+      const itemPath = `${path}[${i}]`;
+      html += `<div class="admin-array-item">`;
+      html += `<div class="admin-array-item-header"><span>Item ${i + 1}</span><button class="btn btn-sm" style="color:var(--red);" onclick="adminDeleteArrayItem('${rootPage}','${path}',${i})">Remove</button></div>`;
+      if (typeof item === 'object') {
+        html += renderCMSFields(item, itemPath, rootPage);
+      } else {
+        html += `<input type="text" value="${String(item).replace(/"/g, '&quot;')}" class="admin-field-input" onchange="updateCMSField('${rootPage}', '${path}', ${i}, this.value)">`;
+      }
+      html += '</div>';
+    });
+    html += `<button class="btn btn-sm btn-outline-dark" style="margin-top:8px;" onclick="adminAddArrayItem('${rootPage}','${path}')">+ Add Item</button>`;
+    return html;
+  }
+
+  Object.entries(obj).forEach(([key, value]) => {
+    const fieldPath = `${path}.${key}`;
+    if (typeof value === 'string') {
+      const isLong = value.length > 100;
+      html += `<div class="admin-field">
+        <label class="admin-field-label">${key}</label>
+        ${isLong
+          ? `<textarea class="admin-field-textarea" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, this.value)">${value}</textarea>`
+          : `<input type="text" value="${value.replace(/"/g, '&quot;')}" class="admin-field-input" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, this.value)">`
+        }
+      </div>`;
+    } else if (typeof value === 'number') {
+      html += `<div class="admin-field">
+        <label class="admin-field-label">${key}</label>
+        <input type="number" value="${value}" class="admin-field-input" step="any" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, parseFloat(this.value)||0)">
+      </div>`;
+    } else if (typeof value === 'object' && value !== null) {
+      html += `<details class="admin-field-group" ${path === rootPage ? 'open' : ''}>
+        <summary>${key} ${Array.isArray(value) ? '(' + value.length + ')' : ''}</summary>
+        <div class="admin-field-group-body">${renderCMSFields(value, fieldPath, rootPage)}</div>
+      </details>`;
+    }
+  });
+
+  return html;
+}
+
+function updateCMSField(rootPage, path, index, value) {
+  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
+  let obj = CMS[rootPage];
+  for (let i = 0; i < parts.length - 1; i++) {
+    obj = obj[parts[i]];
+  }
+  const lastKey = index !== null ? index : parts[parts.length - 1];
+  obj[lastKey] = value;
+}
+
+function adminDeleteArrayItem(rootPage, path, index) {
+  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
+  let obj = CMS[rootPage];
+  for (let i = 0; i < parts.length; i++) {
+    obj = obj[parts[i]];
+  }
+  if (Array.isArray(obj)) {
+    obj.splice(index, 1);
+    adminRenderTab();
+  }
+}
+
+function adminAddArrayItem(rootPage, path) {
+  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
+  let obj = CMS[rootPage];
+  for (let i = 0; i < parts.length; i++) {
+    obj = obj[parts[i]];
+  }
+  if (Array.isArray(obj)) {
+    if (obj.length > 0 && typeof obj[0] === 'object') {
+      // Clone structure of first item with empty values
+      const template = JSON.parse(JSON.stringify(obj[0]));
+      clearValues(template);
+      obj.push(template);
+    } else {
+      obj.push('');
+    }
+    adminRenderTab();
+  }
+}
+
+function clearValues(obj) {
+  for (const key in obj) {
+    if (typeof obj[key] === 'string') obj[key] = '';
+    else if (typeof obj[key] === 'number') obj[key] = 0;
+    else if (Array.isArray(obj[key])) obj[key] = [];
+    else if (typeof obj[key] === 'object' && obj[key] !== null) clearValues(obj[key]);
+  }
 }
 
 function adminRenderCategories() {
@@ -1043,13 +1181,16 @@ function adminAddAddon(ci, ii) {
 }
 
 async function adminSave() {
-  // Gather hidden fee from inputs
-  CMS.pricing.hiddenFee = {
-    label: document.getElementById('adminFeeLabel')?.value || 'Service Fee',
-    amount: parseFloat(document.getElementById('adminFeeAmount')?.value) || 0
-  };
-  await saveCMS('pricing', CMS.pricing);
-  alert('Pricing saved successfully!');
+  // Gather hidden fee from inputs if on pricing tab
+  if (adminActiveTab === 'pricing') {
+    CMS.pricing.hiddenFee = {
+      label: document.getElementById('adminFeeLabel')?.value || 'Service Fee',
+      amount: parseFloat(document.getElementById('adminFeeAmount')?.value) || 0
+    };
+  }
+  // Save active tab's data
+  await saveCMS(adminActiveTab, CMS[adminActiveTab]);
+  alert(`${adminActiveTab.charAt(0).toUpperCase() + adminActiveTab.slice(1)} saved!`);
 }
 
 function adminExport() {
