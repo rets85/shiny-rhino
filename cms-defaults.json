@@ -399,35 +399,84 @@
   "blog": {
     "title": "Cleaning Tips & Insights",
     "subtitle": "Expert advice from our cleaning professionals to help you maintain a healthier home.",
-    "categories": [
+    "authors": ["Shiny Rhino Team", "Mike Johnson", "Sarah Chen"],
+    "posts": [
       {
-        "name": "Home Cleaning Routines",
-        "posts": [
-          { "title": "10 Hidden Spots in Your Home That Need Deep Cleaning", "excerpt": "Behind appliances, under furniture, inside vents — here are the places most people forget to clean.", "date": "Feb 2026" },
-          { "title": "Build a Year-Round Deep Clean Schedule That Actually Works", "excerpt": "A seasonal cleaning plan that keeps your home looking and feeling its best without the overwhelm.", "date": "Jan 2026" }
-        ]
+        "title": "10 Hidden Spots in Your Home That Need Deep Cleaning",
+        "slug": "hidden-spots-deep-cleaning",
+        "excerpt": "Behind appliances, under furniture, inside vents — here are the places most people forget to clean.",
+        "content": "<h2>The Forgotten Corners</h2><p>Every home has spots that get overlooked during regular cleaning. Behind the refrigerator, under heavy furniture, inside air vents, and on top of ceiling fan blades — these are areas where dust, allergens, and grime quietly accumulate.</p><h2>Why It Matters</h2><p>Neglected areas don't just look bad — they affect your indoor air quality. Dust buildup in vents circulates through your home every time the HVAC runs. Pet hair under furniture breaks down into fine particles that trigger allergies.</p><h2>Our Approach</h2><p>During a professional deep clean, our technicians address these hidden areas systematically. We move furniture, clean behind appliances, and use specialized attachments to reach tight spaces that household vacuums miss.</p><p>Schedule a whole-home deep clean and let us handle the spots you can't easily reach.</p>",
+        "category": "Home Cleaning Routines",
+        "author": "Shiny Rhino Team",
+        "date": "2026-02-15",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
       },
       {
-        "name": "Service Guides",
-        "posts": [
-          { "title": "Rental Carpet Cleaners vs. Professional Service: What's the Real Difference?", "excerpt": "We compare the results, cost, and convenience of DIY machines against professional deep cleaning.", "date": "Mar 2026" },
-          { "title": "Is Your Couch Making You Sneeze? How Dirty Upholstery Affects Air Quality", "excerpt": "Upholstery traps allergens, dust mites, and pet dander that affect the air you breathe every day.", "date": "Feb 2026" },
-          { "title": "Area Rug Cleaning: Quick Refresh vs. Full Deep Clean", "excerpt": "When a quick clean is enough and when you need the full professional treatment.", "date": "Jan 2026" }
-        ]
+        "title": "Build a Year-Round Deep Clean Schedule That Actually Works",
+        "slug": "year-round-deep-clean-schedule",
+        "excerpt": "A seasonal cleaning plan that keeps your home looking and feeling its best without the overwhelm.",
+        "content": "<h2>Stop the Annual Cleaning Panic</h2><p>Instead of one massive spring cleaning marathon, spread the work across the year. A quarterly deep clean schedule keeps your home consistently fresh and prevents buildup from getting out of control.</p><h2>Quarter-by-Quarter Plan</h2><p><strong>Q1 (Jan-Mar):</strong> Post-holiday recovery. Focus on carpets, upholstery, and high-traffic areas that took a beating during the holiday season.</p><p><strong>Q2 (Apr-Jun):</strong> Spring refresh. Address windows, tile and grout, and outdoor-to-indoor transition areas where pollen and mud track in.</p><p><strong>Q3 (Jul-Sep):</strong> Summer maintenance. Light touch-ups and attention to areas where kids and pets spend time.</p><p><strong>Q4 (Oct-Dec):</strong> Pre-holiday prep. Deep clean before guests arrive. Focus on living rooms, guest bedrooms, and entryways.</p><h2>The Professional Edge</h2><p>Pairing this schedule with professional cleaning twice a year gives you the best results. We recommend spring and fall as the ideal times for a professional deep clean.</p>",
+        "category": "Home Cleaning Routines",
+        "author": "Sarah Chen",
+        "date": "2026-01-20",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
       },
       {
-        "name": "Tips & Tricks",
-        "posts": [
-          { "title": "5 Daily Habits That Keep Your Carpet Looking New", "excerpt": "Simple routines that make a big difference for your carpet's appearance and longevity.", "date": "Feb 2026" },
-          { "title": "The Pet Owner's Guide to Cleaner Floors", "excerpt": "Practical tips for managing shedding, accidents, and odors between professional cleanings.", "date": "Jan 2026" }
-        ]
+        "title": "Rental Carpet Cleaners vs. Professional Service: What's the Real Difference?",
+        "slug": "rental-vs-professional-carpet-cleaning",
+        "excerpt": "We compare the results, cost, and convenience of DIY machines against professional deep cleaning.",
+        "content": "<h2>The Rental Machine Promise</h2><p>Grocery store carpet cleaners promise professional results at a fraction of the cost. But do they deliver? We put them to the test against our professional-grade truck-mounted equipment.</p><h2>Key Differences</h2><p><strong>Water Temperature:</strong> Rental machines heat water to around 150°F. Our truck-mounted systems reach 200°F+, which is critical for breaking down oils and killing bacteria.</p><p><strong>Suction Power:</strong> Rental units leave significantly more moisture in your carpet. This means longer dry times (24-48 hours vs. 6-12 hours) and a higher risk of mold growth.</p><p><strong>Cleaning Solution:</strong> Rental machines use consumer-grade detergent. Professional solutions are formulated to break down specific types of soiling without leaving sticky residue.</p><h2>The Bottom Line</h2><p>Rental machines are fine for quick surface freshening. But for true deep cleaning — removing allergens, bacteria, and embedded dirt — professional equipment makes a measurable difference. The cost per square foot is closer than most people think once you factor in rental fees, solution, and your time.</p>",
+        "category": "Service Guides",
+        "author": "Mike Johnson",
+        "date": "2026-03-01",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
       },
       {
-        "name": "Seasonal",
-        "posts": [
-          { "title": "Why Spring Is the Best Time for a Carpet Deep Clean", "excerpt": "Winter brings mud, salt, and allergens into your home. Here's why spring is the ideal time to reset.", "date": "Mar 2026" },
-          { "title": "Post-Holiday Cleanup: Getting Your Home Back to Normal", "excerpt": "Practical tips for restoring your home after holiday gatherings and entertaining.", "date": "Dec 2025" }
-        ]
+        "title": "Is Your Couch Making You Sneeze? How Dirty Upholstery Affects Air Quality",
+        "slug": "dirty-upholstery-air-quality",
+        "excerpt": "Upholstery traps allergens, dust mites, and pet dander that affect the air you breathe every day.",
+        "content": "<h2>The Invisible Problem</h2><p>Your sofa might look clean, but the average couch harbors dust mites, pet dander, dead skin cells, pollen, and bacteria deep in its fibers. Every time you sit down, a cloud of microscopic particles is released into your air.</p><h2>Health Impact</h2><p>For allergy sufferers, dirty upholstery is a constant trigger. Dust mites — one of the most common indoor allergens — thrive in upholstered furniture. Their waste products become airborne and cause sneezing, congestion, and irritated eyes.</p><h2>What You Can Do</h2><p>Regular vacuuming with an upholstery attachment helps, but it only addresses surface debris. Professional upholstery cleaning every 12-18 months extracts the deep-set allergens that vacuuming misses. For homes with pets or allergy sufferers, we recommend every 6-12 months.</p>",
+        "category": "Service Guides",
+        "author": "Sarah Chen",
+        "date": "2026-02-10",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
+      },
+      {
+        "title": "5 Daily Habits That Keep Your Carpet Looking New",
+        "slug": "daily-habits-carpet-care",
+        "excerpt": "Simple routines that make a big difference for your carpet's appearance and longevity.",
+        "content": "<h2>Small Actions, Big Results</h2><p>Professional cleaning is essential, but what you do between visits matters just as much. These five daily habits will keep your carpet looking fresh for years.</p><h2>1. Take Off Your Shoes</h2><p>Shoes track in dirt, oils, and outdoor pollutants. A no-shoes policy is the single most effective thing you can do for your carpet.</p><h2>2. Vacuum High-Traffic Areas Daily</h2><p>You don't need to vacuum the whole house every day. Focus on entryways, hallways, and living areas where foot traffic is heaviest.</p><h2>3. Blot Spills Immediately</h2><p>Never rub a spill — always blot from the outside in. The faster you act, the less likely a stain will set.</p><h2>4. Use Door Mats</h2><p>Good quality mats at every entrance capture dirt before it reaches your carpet. Clean the mats weekly.</p><h2>5. Rearrange Furniture Periodically</h2><p>Shifting furniture prevents permanent crush marks and distributes wear evenly across your carpet.</p>",
+        "category": "Tips & Tricks",
+        "author": "Shiny Rhino Team",
+        "date": "2026-02-05",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
+      },
+      {
+        "title": "The Pet Owner's Guide to Cleaner Floors",
+        "slug": "pet-owners-guide-clean-floors",
+        "excerpt": "Practical tips for managing shedding, accidents, and odors between professional cleanings.",
+        "content": "<h2>Living With Pets and Clean Floors</h2><p>We love our pets, but they're tough on floors. Between shedding, tracked-in mud, accidents, and that unmistakable pet smell, keeping floors clean can feel like a losing battle.</p><h2>Managing Pet Hair</h2><p>Invest in a vacuum with a motorized brush roll designed for pet hair. Vacuum at least every other day in areas where your pet spends time. A rubber-bristle broom works great on hard floors.</p><h2>Accident Response</h2><p>For urine: blot immediately, then apply an enzyme-based cleaner (not ammonia-based, which smells like urine to pets). Let the enzyme solution sit for 10-15 minutes before blotting dry.</p><h2>Odor Prevention</h2><p>Baking soda sprinkled on carpet before vacuuming helps absorb odors. For persistent smells, professional pet odor treatment targets the source deep in carpet padding where household products can't reach.</p><h2>Professional Help</h2><p>We recommend professional cleaning every 6-12 months for pet owners. Our enzyme-based pet treatment neutralizes odors at the molecular level.</p>",
+        "category": "Tips & Tricks",
+        "author": "Mike Johnson",
+        "date": "2026-01-15",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
+      },
+      {
+        "title": "Why Spring Is the Best Time for a Carpet Deep Clean",
+        "slug": "spring-carpet-deep-clean",
+        "excerpt": "Winter brings mud, salt, and allergens into your home. Here's why spring is the ideal time to reset.",
+        "content": "<h2>Winter Takes a Toll</h2><p>During winter months, your carpet absorbs everything: road salt tracked in on boots, mud from rainy days, increased indoor allergens from sealed-up windows, and extra foot traffic from holiday gatherings.</p><h2>The Spring Opportunity</h2><p>As temperatures warm up and windows open, spring is the perfect time to flush out winter's buildup. Carpets dry faster in spring thanks to lower humidity and better ventilation.</p><h2>Allergy Season Prep</h2><p>Spring cleaning your carpet before allergy season peaks removes the dust, mold spores, and pet dander that accumulated over winter — giving allergy sufferers a head start before pollen arrives.</p><h2>Book Early</h2><p>Spring is our busiest season. Book your deep clean in early March to get your preferred date and time.</p>",
+        "category": "Seasonal",
+        "author": "Shiny Rhino Team",
+        "date": "2026-03-01",
+        "status": "published",
+        "seo": { "metaTitle": "", "metaDescription": "", "focusKeyword": "", "ogImage": "" }
       }
     ]
   },

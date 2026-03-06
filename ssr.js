@@ -80,6 +80,22 @@ function getMeta(path, CMS) {
     }
   }
 
+  // Blog post pages
+  const blogMatch = path.match(/^\/blog\/(.+)$/);
+  if (blogMatch) {
+    const posts = (CMS.blog || {}).posts || [];
+    const post = posts.find(p => p.slug === decodeURIComponent(blogMatch[1]));
+    if (post) {
+      const seo = post.seo || {};
+      return {
+        title: `${seo.metaTitle || post.title} | ${company}`,
+        description: (seo.metaDescription || post.excerpt || '').slice(0, 155),
+        ogImage: seo.ogImage || '',
+        ...base
+      };
+    }
+  }
+
   return metaMap[path] || {
     title: `${company} | Professional Cleaning Services`,
     description: 'Professional carpet, upholstery, and floor cleaning services.',
@@ -267,16 +283,32 @@ function ssrAbout(CMS) {
 
 function ssrBlog(CMS) {
   const d = CMS.blog || {};
+  const posts = (d.posts || []).filter(p => p.status === 'published');
   return `
     <section class="hero hero--gradient"><div class="container hero-content hero-content--center">
       <h1>${escHtml(d.title)}</h1><p class="hero-sub">${escHtml(d.subtitle)}</p>
     </div></section>
     <section class="blog-section"><div class="container">
-      ${(d.categories||[]).map(cat => `
-        <h2>${escHtml(cat.name)}</h2>
-        ${cat.posts.map(post => `<article><h3>${escHtml(post.title)}</h3><p>${escHtml(post.excerpt)}</p></article>`).join('')}
+      ${posts.map(post => `
+        <article>
+          <h2><a href="/blog/${escHtml(post.slug)}">${escHtml(post.title)}</a></h2>
+          <p>${escHtml(post.excerpt)}</p>
+          <p><small>${escHtml(post.author || '')} &middot; ${escHtml(post.date || '')}</small></p>
+        </article>
       `).join('')}
     </div></section>`;
+}
+
+function ssrBlogPost(CMS, slug) {
+  const posts = (CMS.blog || {}).posts || [];
+  const post = posts.find(p => p.slug === slug);
+  if (!post) return '<section class="page-content"><div class="container"><h1>Post Not Found</h1></div></section>';
+  return `
+    <article class="blog-post"><div class="container blog-post-container">
+      <h1>${escHtml(post.title)}</h1>
+      <p><small>By ${escHtml(post.author || '')} &middot; ${escHtml(post.date || '')}</small></p>
+      <div class="blog-post-content">${post.content || escHtml(post.excerpt)}</div>
+    </div></article>`;
 }
 
 function ssrFAQ(CMS) {
@@ -332,6 +364,9 @@ function renderPage(path, CMS) {
   const productMatch = path.match(/^\/products\/(.+)$/);
   if (productMatch) return ssrProductDetail(CMS, decodeURIComponent(productMatch[1]));
 
+  const blogMatch = path.match(/^\/blog\/(.+)$/);
+  if (blogMatch) return ssrBlogPost(CMS, decodeURIComponent(blogMatch[1]));
+
   const renderers = {
     '/': ssrHome,
     '/quote': ssrQuote,
@@ -354,7 +389,10 @@ function generateSitemap(baseUrl, CMS) {
   const productRoutes = ((CMS.products || {}).items || []).map(item =>
     '/products/' + item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   );
-  const allRoutes = [...staticRoutes, ...serviceRoutes, ...productRoutes];
+  const blogRoutes = ((CMS.blog || {}).posts || [])
+    .filter(p => p.status === 'published' && p.slug)
+    .map(p => '/blog/' + p.slug);
+  const allRoutes = [...staticRoutes, ...serviceRoutes, ...productRoutes, ...blogRoutes];
 
   const today = new Date().toISOString().split('T')[0];
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

@@ -163,6 +163,16 @@ function route() {
     return;
   }
 
+  // Check for blog post pages
+  const blogMatch = path.match(/^\/blog\/(.+)$/);
+  if (blogMatch) {
+    renderBlogPost(decodeURIComponent(blogMatch[1]));
+    window.scrollTo(0, 0);
+    bindLinks();
+    initInteractions();
+    return;
+  }
+
   const renderer = routes[path];
   if (renderer) {
     renderer();
@@ -201,6 +211,11 @@ function breadcrumb(items) {
       ? `<a href="${item.href}" data-link>${item.label}</a><span>/</span>`
       : `${item.label}`
   ).join('')}</div></div>`;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); } catch { return d; }
 }
 
 function e(field, tag = 'span') {
@@ -385,14 +400,14 @@ function renderHome() {
         <h2 class="section-title">${blog.title || 'Cleaning Tips & Insights'}</h2>
         <p class="section-subtitle">${blog.subtitle || ''}</p>
         <div class="blog-grid">
-          ${(blog.posts || []).map(post => `
+          ${((CMS.blog || {}).posts || []).filter(p => p.status === 'published').slice(0, 3).map(post => `
             <div class="blog-card">
               <div class="blog-card-image">${ICONS.article}</div>
               <div class="blog-card-body">
                 <div class="blog-card-category">${post.category || ''}</div>
-                <h3>${post.title}</h3>
+                <h3><a href="/blog/${post.slug}" data-link>${post.title}</a></h3>
                 <p>${post.excerpt}</p>
-                <a href="/blog" class="blog-card-link" data-link>Read More →</a>
+                <div class="blog-card-meta">${post.author || ''} &middot; ${formatDate(post.date)}</div>
               </div>
             </div>`).join('')}
         </div>
@@ -839,6 +854,9 @@ function renderAbout() {
 // ---- Blog Page ----
 function renderBlog() {
   const d = CMS.blog || {};
+  const posts = (d.posts || []).filter(p => p.status === 'published').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const categories = [...new Set(posts.map(p => p.category).filter(Boolean))];
+
   document.getElementById('app').innerHTML = `
     ${breadcrumb([{ label: 'Home', href: '/' }, { label: 'Blog' }])}
     <section class="hero hero--gradient" style="min-height:280px;">
@@ -849,22 +867,65 @@ function renderBlog() {
     </section>
     <section class="blog-section" style="padding-top:40px;">
       <div class="container">
-        ${(d.categories || []).map(cat => `
-          <h2 style="font-size:1.4rem;color:var(--dark);margin-bottom:8px;margin-top:40px;">${cat.name}</h2>
-          <div class="blog-grid" style="margin-top:16px;">
-            ${cat.posts.map(post => `
-              <div class="blog-card">
-                <div class="blog-card-image">${ICONS.article}</div>
-                <div class="blog-card-body">
-                  <div class="blog-card-category">${cat.name}</div>
-                  <h3>${post.title}</h3>
-                  <p>${post.excerpt}</p>
-                  <span style="font-size:0.8rem;color:var(--text-muted);">${post.date || ''}</span>
+        <div class="blog-filters">
+          <button class="blog-filter active" onclick="filterBlog(this, 'all')">All</button>
+          ${categories.map(c => `<button class="blog-filter" onclick="filterBlog(this, '${c}')">${c}</button>`).join('')}
+        </div>
+        <div class="blog-list">
+          ${posts.map(post => `
+            <article class="blog-list-item" data-category="${post.category || ''}">
+              <div class="blog-list-image">${ICONS.article}</div>
+              <div class="blog-list-body">
+                <div class="blog-list-meta">
+                  <span class="blog-list-category">${post.category || ''}</span>
+                  <span>${formatDate(post.date)}</span>
+                  <span>by ${post.author || 'Staff'}</span>
                 </div>
-              </div>`).join('')}
-          </div>`).join('')}
+                <h2><a href="/blog/${post.slug}" data-link>${post.title}</a></h2>
+                <p>${post.excerpt}</p>
+                <a href="/blog/${post.slug}" class="blog-read-more" data-link>Read Article</a>
+              </div>
+            </article>`).join('')}
+        </div>
       </div>
     </section>
+  `;
+}
+
+function filterBlog(btn, cat) {
+  document.querySelectorAll('.blog-filter').forEach(f => f.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.blog-list-item').forEach(el => {
+    el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
+  });
+}
+
+function renderBlogPost(slug) {
+  const d = CMS.blog || {};
+  const post = (d.posts || []).find(p => p.slug === slug);
+  if (!post) {
+    document.getElementById('app').innerHTML = '<div class="page-content"><div class="container" style="text-align:center;padding:80px 20px;"><h1>Post Not Found</h1><a href="/blog" class="btn btn-primary" data-link>Back to Blog</a></div></div>';
+    return;
+  }
+  document.getElementById('app').innerHTML = `
+    ${breadcrumb([{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }])}
+    <article class="blog-post">
+      <div class="container blog-post-container">
+        <header class="blog-post-header">
+          <div class="blog-post-category">${post.category || ''}</div>
+          <h1>${post.title}</h1>
+          <div class="blog-post-meta">
+            <span>By <strong>${post.author || 'Staff'}</strong></span>
+            <span>${formatDate(post.date)}</span>
+          </div>
+        </header>
+        <div class="blog-post-content">${post.content || '<p>' + post.excerpt + '</p>'}</div>
+        <footer class="blog-post-footer">
+          <a href="/blog" class="btn btn-outline-dark" data-link>Back to Blog</a>
+          <a href="/quote" class="btn btn-primary" data-link>Get a Free Quote</a>
+        </footer>
+      </div>
+    </article>
   `;
 }
 
@@ -1121,18 +1182,7 @@ const ADMIN_PAGE_CONFIG = {
   blog: {
     label: 'Blog',
     icon: '&#128221;',
-    sections: [
-      { key: 'title', label: 'Blog Title', type: 'text' },
-      { key: 'subtitle', label: 'Blog Subtitle', type: 'textarea' },
-      { key: 'categories', label: 'Blog Categories', type: 'array', itemFields: [
-        { key: 'name', label: 'Category Name', type: 'text' },
-        { key: 'posts', label: 'Posts', type: 'array', itemFields: [
-          { key: 'title', label: 'Post Title', type: 'text' },
-          { key: 'excerpt', label: 'Excerpt', type: 'textarea' },
-          { key: 'date', label: 'Date', type: 'text' }
-        ]}
-      ]}
-    ]
+    custom: true
   },
   faq: {
     label: 'FAQ',
@@ -1278,12 +1328,277 @@ function adminRenderTab() {
       <button class="btn btn-secondary" onclick="adminAddCategory()" style="margin:24px 0 40px;">+ Add New Category</button>
     `;
     adminRenderCategories();
+  } else if (adminActiveTab === 'blog') {
+    if (titleEl) titleEl.textContent = 'Blog Manager';
+    adminRenderBlogManager(container);
+  } else if (adminActiveTab.startsWith('blog_edit_')) {
+    const idx = parseInt(adminActiveTab.replace('blog_edit_', ''));
+    if (titleEl) titleEl.textContent = 'Edit Blog Post';
+    adminRenderBlogEditor(container, idx);
   } else if (ADMIN_PAGE_CONFIG[adminActiveTab]) {
     const config = ADMIN_PAGE_CONFIG[adminActiveTab];
-    if (titleEl) titleEl.textContent = config.label;
-    const data = CMS[adminActiveTab] || {};
-    container.innerHTML = adminRenderStructuredEditor(adminActiveTab, data, config.sections);
+    if (!config.custom) {
+      if (titleEl) titleEl.textContent = config.label;
+      const data = CMS[adminActiveTab] || {};
+      container.innerHTML = adminRenderStructuredEditor(adminActiveTab, data, config.sections);
+    }
   }
+}
+
+// ---- Blog Admin Manager ----
+window._blogQuill = null;
+
+function adminRenderBlogManager(container) {
+  const blog = CMS.blog || { title: '', subtitle: '', authors: [], posts: [] };
+  const posts = blog.posts || [];
+
+  container.innerHTML = `
+    <div class="adm-card">
+      <div class="adm-card-header"><h2>Blog Settings</h2></div>
+      <div class="adm-card-body">
+        <div class="adm-input-group">
+          <label>Blog Title</label>
+          <input type="text" value="${(blog.title || '').replace(/"/g, '&quot;')}" onchange="if(!CMS.blog) CMS.blog={}; CMS.blog.title=this.value; adminMarkUnsaved()">
+        </div>
+        <div class="adm-input-group">
+          <label>Subtitle</label>
+          <input type="text" value="${(blog.subtitle || '').replace(/"/g, '&quot;')}" onchange="CMS.blog.subtitle=this.value; adminMarkUnsaved()">
+        </div>
+        <div class="adm-input-group">
+          <label>Authors (comma-separated)</label>
+          <input type="text" value="${(blog.authors || []).join(', ')}" onchange="CMS.blog.authors=this.value.split(',').map(s=>s.trim()).filter(Boolean); adminMarkUnsaved()">
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-header">
+        <h2>Posts <span class="adm-count">${posts.length}</span></h2>
+        <button class="btn btn-primary btn-sm" onclick="adminNewBlogPost()">+ New Post</button>
+      </div>
+      <div class="adm-card-body" style="padding:0;">
+        <table class="adm-blog-table">
+          <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${posts.map((post, i) => `
+              <tr>
+                <td><a href="#" onclick="event.preventDefault(); adminEditBlogPost(${i})" class="adm-blog-title-link">${post.title || 'Untitled'}</a></td>
+                <td>${post.category || ''}</td>
+                <td>${post.author || ''}</td>
+                <td>${post.date || ''}</td>
+                <td><span class="adm-status adm-status--${post.status || 'draft'}">${post.status || 'draft'}</span></td>
+                <td>
+                  <button class="adm-icon-btn" onclick="adminEditBlogPost(${i})" title="Edit">&#9998;</button>
+                  <button class="adm-icon-btn adm-icon-btn--danger" onclick="adminDeleteBlogPost(${i})" title="Delete">&#10005;</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function adminNewBlogPost() {
+  if (!CMS.blog) CMS.blog = { title: '', subtitle: '', authors: [], posts: [] };
+  if (!CMS.blog.posts) CMS.blog.posts = [];
+  CMS.blog.posts.unshift({
+    title: 'New Post',
+    slug: 'new-post-' + Date.now(),
+    excerpt: '',
+    content: '<p>Start writing your post here...</p>',
+    category: '',
+    author: (CMS.blog.authors || [])[0] || 'Staff',
+    date: new Date().toISOString().split('T')[0],
+    status: 'draft',
+    seo: { metaTitle: '', metaDescription: '', focusKeyword: '', ogImage: '' }
+  });
+  adminMarkUnsaved();
+  adminEditBlogPost(0);
+}
+
+function adminEditBlogPost(idx) {
+  adminActiveTab = 'blog_edit_' + idx;
+  adminRenderTab();
+}
+
+function adminDeleteBlogPost(idx) {
+  if (!confirm('Delete this post permanently?')) return;
+  CMS.blog.posts.splice(idx, 1);
+  adminMarkUnsaved();
+  adminActiveTab = 'blog';
+  adminRenderTab();
+}
+
+function adminRenderBlogEditor(container, idx) {
+  const post = (CMS.blog?.posts || [])[idx];
+  if (!post) { adminActiveTab = 'blog'; adminRenderTab(); return; }
+  const authors = CMS.blog?.authors || ['Staff'];
+  const seo = post.seo || {};
+
+  container.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <button class="btn btn-sm btn-outline-dark" onclick="adminBackToBlog()">Back to Posts</button>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-header"><h2>Post Details</h2>
+        <span class="adm-status adm-status--${post.status || 'draft'}">${post.status || 'draft'}</span>
+      </div>
+      <div class="adm-card-body">
+        <div class="adm-input-group">
+          <label>Title</label>
+          <input type="text" id="blogPostTitle" value="${(post.title || '').replace(/"/g, '&quot;')}" oninput="adminBlogField(${idx},'title',this.value)">
+        </div>
+        <div class="adm-row">
+          <div class="adm-input-group">
+            <label>Slug (URL)</label>
+            <input type="text" id="blogPostSlug" value="${(post.slug || '').replace(/"/g, '&quot;')}" oninput="adminBlogField(${idx},'slug',this.value)">
+            <small style="color:var(--text-muted);font-size:0.75rem;">/blog/${post.slug}</small>
+          </div>
+          <div class="adm-input-group">
+            <label>Category</label>
+            <input type="text" value="${(post.category || '').replace(/"/g, '&quot;')}" oninput="adminBlogField(${idx},'category',this.value)" list="blogCatList">
+            <datalist id="blogCatList">${[...new Set((CMS.blog?.posts||[]).map(p=>p.category).filter(Boolean))].map(c=>`<option value="${c}">`).join('')}</datalist>
+          </div>
+        </div>
+        <div class="adm-row">
+          <div class="adm-input-group">
+            <label>Author</label>
+            <select oninput="adminBlogField(${idx},'author',this.value)">
+              ${authors.map(a => `<option ${a === post.author ? 'selected' : ''}>${a}</option>`).join('')}
+              <option ${!authors.includes(post.author) ? 'selected' : ''} value="${(post.author || '').replace(/"/g, '&quot;')}">${post.author || 'Staff'}</option>
+            </select>
+          </div>
+          <div class="adm-input-group">
+            <label>Publish Date</label>
+            <input type="date" value="${post.date || ''}" onchange="adminBlogField(${idx},'date',this.value)">
+          </div>
+          <div class="adm-input-group">
+            <label>Status</label>
+            <select onchange="adminBlogField(${idx},'status',this.value)">
+              <option value="draft" ${post.status === 'draft' ? 'selected' : ''}>Draft</option>
+              <option value="published" ${post.status === 'published' ? 'selected' : ''}>Published</option>
+            </select>
+          </div>
+        </div>
+        <div class="adm-input-group">
+          <label>Excerpt</label>
+          <textarea rows="2" oninput="adminBlogField(${idx},'excerpt',this.value)">${post.excerpt || ''}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-header">
+        <h2>Content</h2>
+        <div class="adm-editor-toggle">
+          <button class="btn btn-sm ${!window._blogHtmlMode ? 'btn-primary' : 'btn-outline-dark'}" onclick="adminBlogToggleMode(${idx}, false)">Visual</button>
+          <button class="btn btn-sm ${window._blogHtmlMode ? 'btn-primary' : 'btn-outline-dark'}" onclick="adminBlogToggleMode(${idx}, true)">HTML</button>
+        </div>
+      </div>
+      <div class="adm-card-body" style="padding:0;">
+        <div id="blogEditorWrap">
+          ${window._blogHtmlMode
+            ? `<textarea id="blogHtmlEditor" class="adm-html-editor" oninput="adminBlogField(${idx},'content',this.value)">${(post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>`
+            : `<div id="blogQuillEditor"></div>`
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-header"><h2>SEO Settings</h2></div>
+      <div class="adm-card-body">
+        <div class="adm-seo-preview">
+          <div class="adm-seo-preview-title" id="seoPreviewTitle">${seo.metaTitle || post.title || 'Post Title'}</div>
+          <div class="adm-seo-preview-url">${window.location.origin}/blog/${post.slug}</div>
+          <div class="adm-seo-preview-desc" id="seoPreviewDesc">${seo.metaDescription || post.excerpt || 'Post description...'}</div>
+        </div>
+        <div class="adm-input-group">
+          <label>SEO Title <small style="color:var(--text-muted);">(leave empty to use post title)</small></label>
+          <input type="text" value="${(seo.metaTitle || '').replace(/"/g, '&quot;')}" oninput="adminBlogSEO(${idx},'metaTitle',this.value); document.getElementById('seoPreviewTitle').textContent=this.value||document.getElementById('blogPostTitle').value">
+        </div>
+        <div class="adm-input-group">
+          <label>SEO Description <small style="color:var(--text-muted);">(leave empty to use excerpt)</small></label>
+          <textarea rows="2" oninput="adminBlogSEO(${idx},'metaDescription',this.value); document.getElementById('seoPreviewDesc').textContent=this.value||''">${seo.metaDescription || ''}</textarea>
+        </div>
+        <div class="adm-row">
+          <div class="adm-input-group">
+            <label>Focus Keyword</label>
+            <input type="text" value="${(seo.focusKeyword || '').replace(/"/g, '&quot;')}" oninput="adminBlogSEO(${idx},'focusKeyword',this.value)">
+          </div>
+          <div class="adm-input-group">
+            <label>OG Image URL</label>
+            <input type="text" value="${(seo.ogImage || '').replace(/"/g, '&quot;')}" oninput="adminBlogSEO(${idx},'ogImage',this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Initialize Quill editor
+  if (!window._blogHtmlMode) {
+    setTimeout(() => {
+      const editorEl = document.getElementById('blogQuillEditor');
+      if (!editorEl) return;
+      window._blogQuill = new Quill('#blogQuillEditor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'link', 'image'],
+            ['clean']
+          ]
+        }
+      });
+      window._blogQuill.root.innerHTML = post.content || '';
+      window._blogQuill.on('text-change', () => {
+        CMS.blog.posts[idx].content = window._blogQuill.root.innerHTML;
+        adminMarkUnsaved();
+      });
+    }, 50);
+  }
+}
+
+function adminBlogField(idx, field, val) {
+  if (!CMS.blog?.posts?.[idx]) return;
+  CMS.blog.posts[idx][field] = val;
+  adminMarkUnsaved();
+}
+
+function adminBlogSEO(idx, field, val) {
+  if (!CMS.blog?.posts?.[idx]) return;
+  if (!CMS.blog.posts[idx].seo) CMS.blog.posts[idx].seo = {};
+  CMS.blog.posts[idx].seo[field] = val;
+  adminMarkUnsaved();
+}
+
+function adminBlogToggleMode(idx, htmlMode) {
+  // Save current content from Quill before switching
+  if (window._blogQuill && !window._blogHtmlMode) {
+    CMS.blog.posts[idx].content = window._blogQuill.root.innerHTML;
+  }
+  window._blogHtmlMode = htmlMode;
+  window._blogQuill = null;
+  const container = document.getElementById('adminTabContent');
+  adminRenderBlogEditor(container, idx);
+}
+
+function adminBackToBlog() {
+  // Save Quill content before leaving
+  if (window._blogQuill) {
+    const idx = parseInt(adminActiveTab.replace('blog_edit_', ''));
+    if (CMS.blog?.posts?.[idx]) {
+      CMS.blog.posts[idx].content = window._blogQuill.root.innerHTML;
+    }
+  }
+  window._blogQuill = null;
+  adminActiveTab = 'blog';
+  adminRenderTab();
 }
 
 function adminRenderStructuredEditor(page, data, sections, pathPrefix) {
@@ -1557,6 +1872,13 @@ async function adminSave() {
     await saveCMS('pricing', CMS.pricing);
   } else if (adminActiveTab.startsWith('svc_')) {
     await saveCMS('services', CMS.services);
+  } else if (adminActiveTab === 'blog' || adminActiveTab.startsWith('blog_edit_')) {
+    // Save Quill content if editing a post
+    if (window._blogQuill && adminActiveTab.startsWith('blog_edit_')) {
+      const idx = parseInt(adminActiveTab.replace('blog_edit_', ''));
+      if (CMS.blog?.posts?.[idx]) CMS.blog.posts[idx].content = window._blogQuill.root.innerHTML;
+    }
+    await saveCMS('blog', CMS.blog);
   } else {
     await saveCMS(adminActiveTab, CMS[adminActiveTab]);
   }
