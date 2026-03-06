@@ -24,6 +24,11 @@ function getMeta(path, CMS) {
       description: 'Get an instant, no-hassle quote for carpet cleaning, upholstery cleaning, and more. Pick your items and see your price instantly.',
       ...base
     },
+    '/quote/commercial': {
+      title: `Commercial Cleaning Services | ${company}`,
+      description: 'Custom pricing for offices, facilities and commercial spaces. Build your commercial cleaning service package and get instant pricing.',
+      ...base
+    },
     '/products': {
       title: `Professional Cleaning Products | ${company}`,
       description: (CMS.products?.title) || 'Professional grade cleaning products for home use.',
@@ -54,7 +59,7 @@ function getMeta(path, CMS) {
       description: CMS.contact?.subtitle || 'Reach out with questions or to schedule a cleaning.',
       ...base
     },
-    '/admin': {
+    '/sh-admin': {
       title: `Admin Dashboard | ${company}`,
       description: 'Pricing administration dashboard.',
       noIndex: true,
@@ -200,17 +205,18 @@ function ssrService(CMS, key) {
     </div></section>` : ''}
     ${svc.commercial ? `<section><div class="container">
       <h2>${escHtml(svc.commercial.title)}</h2><p>${escHtml(svc.commercial.description)}</p>
-      <a href="/quote?type=commercial">Get Commercial Quote</a>
+      <a href="/quote/commercial">Get Commercial Quote</a>
     </div></section>` : ''}`;
 }
 
-function ssrQuote(CMS) {
+function ssrQuote(CMS, isCommercial) {
   const pricing = CMS.pricing || { categories: [] };
   return `
     <section class="calc-page">
-      <div class="calc-header">
-        <h1>NO HASSLE PRICING &amp; CLEANING</h1>
-        <p>Pick your items, see your price instantly. No surprises.</p>
+      <div class="calc-header${isCommercial ? ' calc-header--biz' : ''}">
+        ${isCommercial
+          ? '<h1>COMMERCIAL CLEANING SERVICES</h1><p>Custom pricing for offices, facilities &amp; commercial spaces. Build your service package below.</p>'
+          : '<h1>NO HASSLE PRICING &amp; CLEANING</h1><p>Pick your items, see your price instantly. No surprises.</p>'}
       </div>
       <div class="calc-layout"><div class="calc-main">
         ${pricing.categories.map(cat => `
@@ -305,29 +311,50 @@ function ssrContact(CMS) {
     </div></section>`;
 }
 
+function ssrProductDetail(CMS, slug) {
+  const d = CMS.products || {};
+  const items = d.items || [];
+  const item = items.find(i => i.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === slug);
+  if (!item) return '<section class="page-content"><div class="container"><h1>Product Not Found</h1></div></section>';
+  return `
+    <section class="page-content"><div class="container" style="max-width:800px;">
+      <h1>${escHtml(item.name)}</h1>
+      <p>${escHtml(item.description)}</p>
+      <p class="product-price">${escHtml(item.price)}</p>
+      <a href="/products">Back to Products</a>
+    </div></section>`;
+}
+
 function renderPage(path, CMS) {
   const serviceMatch = path.match(/^\/services\/(\w+)$/);
   if (serviceMatch) return ssrService(CMS, serviceMatch[1]);
 
+  const productMatch = path.match(/^\/products\/(.+)$/);
+  if (productMatch) return ssrProductDetail(CMS, decodeURIComponent(productMatch[1]));
+
   const renderers = {
     '/': ssrHome,
     '/quote': ssrQuote,
+    '/quote/commercial': (cms) => ssrQuote(cms, true),
     '/products': ssrProducts,
     '/about': ssrAbout,
     '/blog': ssrBlog,
     '/faq': ssrFAQ,
     '/locations': ssrLocations,
     '/contact': ssrContact,
-    '/admin': () => '',
+    '/sh-admin': () => '',
   };
   const fn = renderers[path];
   return fn ? fn(CMS) : '';
 }
 
 function generateSitemap(baseUrl, CMS) {
-  const staticRoutes = ['/', '/quote', '/products', '/about', '/blog', '/faq', '/locations', '/contact'];
+  const staticRoutes = ['/', '/quote', '/quote/commercial', '/products', '/about', '/blog', '/faq', '/locations', '/contact'];
   const serviceRoutes = Object.keys(CMS.services || {}).map(k => `/services/${k}`);
-  const allRoutes = [...staticRoutes, ...serviceRoutes];
+  const productRoutes = ((CMS.products || {}).items || []).map(item =>
+    '/products/' + item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  );
+  const allRoutes = [...staticRoutes, ...serviceRoutes, ...productRoutes];
 
   const today = new Date().toISOString().split('T')[0];
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

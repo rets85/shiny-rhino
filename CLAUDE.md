@@ -23,20 +23,40 @@ Single-page application (SPA) for a carpet cleaning business with server-side re
 - `public/index.html` is the SPA shell template; server injects SSR content into `<main id="app">`
 - Client JS (`app.js`) re-renders on load for interactivity (hydration)
 - Static files served with `index: false` so SSR handles `/`
+- No query parameters — all pages use clean URLs for SEO
 
 ## Routes
 - `/` - Home page
-- `/quote` - Line-item pricing calculator (qty +/-, add-ons, sticky sidebar summary)
-- `/admin` - Pricing admin dashboard (categories, items, add-ons, hidden fees, export/import)
+- `/quote` - Residential pricing calculator (qty +/-, add-ons, sticky sidebar)
+- `/quote/commercial` - Commercial pricing calculator (separate clean URL, dark header)
+- `/sh-admin` - Advanced CMS admin (sidebar nav, structured editors for all pages/services/pricing)
 - `/services/:key` - Service pages (carpet, upholstery, tile, hardwood, rug, stone, water, vehicle)
-- `/products`, `/about`, `/blog`, `/faq`, `/locations`, `/contact` - Content pages
-- `/robots.txt`, `/sitemap.xml` - SEO files (auto-generated)
+- `/products` - Products listing with working cart (inline toast, +/- qty, sidebar total)
+- `/products/:slug` - Individual product detail pages (SEO-friendly slugs)
+- `/about`, `/blog`, `/faq`, `/locations`, `/contact` - Content pages
+- `/robots.txt`, `/sitemap.xml` - SEO files (auto-generated, includes product URLs)
+
+## CMS Admin (`/sh-admin`)
+- Sidebar navigation: Pricing, Pages (Global, Home, About, Products, Blog, FAQ, Contact, Locations), Services (each service individually)
+- Structured field editors with labeled inputs (not generic recursive JSON)
+- Array items with reorder (up/down), add, remove
+- Nested arrays supported (e.g. blog categories > posts, FAQ categories > questions)
+- Pricing tab: hidden fee, categories with items table, add-ons, instructions
+- Export/Import for pricing config
+- Save status indicator, toast notifications
 
 ## CMS Data
 - `cms-defaults.json` - Default content (committed to git, used as bootstrap)
 - `cms-data.json` - Runtime data (gitignored, created from defaults on first run)
-- `pricing` key in CMS controls the quote calculator and admin dashboard
+- `pricing` key controls the quote calculator pricing
 - API: `GET/PUT/PATCH /api/content/:page`
+
+## Design Notes
+- Logo: transparent PNG (`logo.png`) created via remove.bg, also `logo.jpg` original
+- Favicon: multi-size ICO (16/32/48px) from logo
+- No emojis anywhere — SVG icons (`ICONS` object) and Unsplash photos for service tiles
+- Toast notifications instead of alert() popups throughout
+- All content is original — do NOT copy from Stanley Steemer or other competitors
 
 ## Development
 ```bash
@@ -47,5 +67,5 @@ npm start
 
 ## Notes
 - `cms-data.json` is gitignored; Railway uses ephemeral storage so data resets on deploy (bootstraps from cms-defaults.json)
-- Admin page is at `/admin` - blocked from search engines via robots.txt
+- Admin at `/sh-admin` — blocked from search engines via robots.txt
 - No database; all data stored in JSON files

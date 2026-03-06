@@ -49,10 +49,84 @@ async function saveCMS(page, data) {
   });
 }
 
+// ---- Product Slug Helper ----
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+// ---- Cart State ----
+window._cart = window._cart || {};
+
+function showToast(message) {
+  let toast = document.getElementById('siteToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'siteToast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('toast--visible');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('toast--visible'), 3000);
+}
+
+function addToCart(index) {
+  const d = CMS.products || {};
+  const item = (d.items || [])[index];
+  if (!item) return;
+  if (!window._cart[index]) window._cart[index] = { qty: 0 };
+  window._cart[index].qty++;
+  showToast(`${item.name} added to cart`);
+  updateCartSidebar();
+}
+
+function removeFromCart(index) {
+  if (window._cart[index]) {
+    window._cart[index].qty--;
+    if (window._cart[index].qty <= 0) delete window._cart[index];
+  }
+  updateCartSidebar();
+}
+
+function updateCartSidebar() {
+  const d = CMS.products || {};
+  const items = d.items || [];
+  const summaryEl = document.getElementById('productCartLines');
+  const totalEl = document.getElementById('productCartTotal');
+  const checkoutBtn = document.getElementById('productCheckoutBtn');
+  if (!summaryEl) return;
+
+  let html = '';
+  let total = 0;
+  let hasItems = false;
+  Object.entries(window._cart).forEach(([idx, s]) => {
+    if (s.qty <= 0) return;
+    const item = items[idx];
+    if (!item) return;
+    hasItems = true;
+    const price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+    const lineTotal = price * s.qty;
+    total += lineTotal;
+    html += `<div class="cart-line">
+      <span>${item.name} x${s.qty}</span>
+      <span>
+        <button class="cart-qty-btn" onclick="removeFromCart(${idx})">-</button>
+        <button class="cart-qty-btn" onclick="addToCart(${idx})">+</button>
+        $${lineTotal.toFixed(2)}
+      </span>
+    </div>`;
+  });
+  summaryEl.innerHTML = hasItems ? html : '<div class="order-summary-empty">Your cart is empty</div>';
+  if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+  if (checkoutBtn) checkoutBtn.disabled = !hasItems;
+}
+
 // ---- SPA Router ----
 const routes = {
   '/': renderHome,
-  '/quote': renderQuote,
+  '/quote': () => renderQuote(false),
+  '/quote/commercial': () => renderQuote(true),
   '/services/carpet': () => renderService('carpet'),
   '/services/upholstery': () => renderService('upholstery'),
   '/services/tile': () => renderService('tile'),
@@ -67,7 +141,7 @@ const routes = {
   '/faq': renderFAQ,
   '/locations': renderLocations,
   '/contact': renderContact,
-  '/admin': renderAdmin,
+  '/sh-admin': renderAdmin,
 };
 
 function navigate(path) {
@@ -78,6 +152,17 @@ function navigate(path) {
 function route() {
   const path = window.location.pathname;
   const app = document.getElementById('app');
+
+  // Check for product detail pages
+  const productMatch = path.match(/^\/products\/(.+)$/);
+  if (productMatch) {
+    renderProductDetail(decodeURIComponent(productMatch[1]));
+    window.scrollTo(0, 0);
+    bindLinks();
+    initInteractions();
+    return;
+  }
+
   const renderer = routes[path];
   if (renderer) {
     renderer();
@@ -190,7 +275,7 @@ function renderHome() {
             </div>
             <div class="quote-type-arrow">&rarr;</div>
           </a>
-          <a href="/quote?type=commercial" class="quote-type-card quote-type-card--biz" data-link>
+          <a href="/quote/commercial" class="quote-type-card quote-type-card--biz" data-link>
             <div class="quote-type-icon">${ICONS.briefcase}</div>
             <div class="quote-type-text">
               <strong>Business Cleaning</strong>
@@ -297,7 +382,7 @@ function renderHome() {
     <!-- Blog Preview -->
     <section class="blog-section">
       <div class="container">
-        <h2 class="section-title">${blog.title || 'The Dirt on Clean'}</h2>
+        <h2 class="section-title">${blog.title || 'Cleaning Tips & Insights'}</h2>
         <p class="section-subtitle">${blog.subtitle || ''}</p>
         <div class="blog-grid">
           ${(blog.posts || []).map(post => `
@@ -333,10 +418,8 @@ function renderHome() {
   `;
 }
 
-function renderQuote() {
+function renderQuote(isCommercial) {
   const pricing = CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
-  const params = new URLSearchParams(window.location.search);
-  const isCommercial = params.get('type') === 'commercial';
   // calcState: { catIdx_itemIdx: { qty, addons: { addonIdx: bool } } }
   window._calcState = window._calcState || {};
 
@@ -351,7 +434,7 @@ function renderQuote() {
         </div>
         ${isCommercial
           ? `<a href="/quote" data-link class="btn btn-sm btn-outline calc-switch-link">Switch to Home</a>`
-          : `<a href="/quote?type=commercial" data-link class="btn btn-sm btn-outline calc-switch-link">Business Quote</a>`
+          : `<a href="/quote/commercial" data-link class="btn btn-sm btn-outline calc-switch-link">Business Quote</a>`
         }
       </div>
       <div class="calc-layout">
@@ -497,7 +580,7 @@ function calcUpdateSummary() {
 function calcSchedule() {
   const state = window._calcState;
   const hasItems = Object.values(state).some(s => s.qty > 0);
-  if (!hasItems) { alert('Please add at least one item.'); return; }
+  if (!hasItems) { showToast('Please add at least one item first.'); return; }
   document.getElementById('calcModal').style.display = 'flex';
 }
 
@@ -616,7 +699,7 @@ function renderService(key) {
           <div>
             <h2>${svc.commercial.title}</h2>
             <p>${svc.commercial.description}</p>
-            <a href="/quote?type=commercial" class="btn btn-primary" data-link>Get Commercial Quote</a>
+            <a href="/quote/commercial" class="btn btn-primary" data-link>Get Commercial Quote</a>
           </div>
           <div class="commercial-image">${ICONS.building}</div>
         </div>
@@ -659,23 +742,54 @@ function renderProducts() {
               <div class="product-card">
                 <div class="product-image">${ICONS.product}</div>
                 <div class="product-body">
-                  <h3>${item.name}</h3>
+                  <h3><a href="/products/${slugify(item.name)}" data-link>${item.name}</a></h3>
                   <p>${item.description}</p>
                   <div class="product-price">${item.price}</div>
                   <div class="product-cart">
-                    <button class="btn btn-sm btn-secondary" onclick="alert('Added to cart!')">Add to Cart</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addToCart(${i})">Add to Cart</button>
                   </div>
                 </div>
               </div>`).join('')}
           </div>
           <div class="order-summary">
-            <h3>Order Summary</h3>
-            <div class="order-summary-empty">Your cart is empty</div>
+            <h3>Your Cart</h3>
+            <div id="productCartLines" class="cart-lines">
+              <div class="order-summary-empty">Your cart is empty</div>
+            </div>
             <div class="order-total">
               <span>Total</span>
-              <span>$0.00</span>
+              <span id="productCartTotal">$0.00</span>
             </div>
-            <button class="btn btn-primary btn-full btn-sm" style="margin-top:16px;" disabled>Checkout</button>
+            <button id="productCheckoutBtn" class="btn btn-primary btn-full btn-sm" style="margin-top:16px;" disabled onclick="showToast('Checkout coming soon!')">Checkout</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+  updateCartSidebar();
+}
+
+function renderProductDetail(slug) {
+  const d = CMS.products || {};
+  const items = d.items || [];
+  const index = items.findIndex(item => slugify(item.name) === slug);
+  const item = items[index];
+  if (!item) {
+    document.getElementById('app').innerHTML = '<div class="page-content"><div class="container" style="text-align:center;padding:80px 20px;"><h1>Product Not Found</h1><a href="/products" class="btn btn-primary" data-link>Back to Products</a></div></div>';
+    return;
+  }
+  document.getElementById('app').innerHTML = `
+    ${breadcrumb([{ label: 'Home', href: '/' }, { label: 'Products', href: '/products' }, { label: item.name }])}
+    <section class="page-content">
+      <div class="container" style="max-width:800px;">
+        <div class="product-detail">
+          <div class="product-detail-image">${ICONS.product}</div>
+          <div class="product-detail-info">
+            <h1>${item.name}</h1>
+            <p class="product-detail-desc">${item.description}</p>
+            <div class="product-detail-price">${item.price}</div>
+            <button class="btn btn-primary" onclick="addToCart(${index})">Add to Cart</button>
+            <a href="/products" class="btn btn-outline-dark" data-link style="margin-left:12px;">Back to Products</a>
           </div>
         </div>
       </div>
@@ -911,38 +1025,196 @@ async function handleNewsletter(e) {
     body: JSON.stringify({ email: input.value })
   });
   input.value = '';
-  alert('Thanks for subscribing!');
+  showToast('Thanks for subscribing!');
 }
 
 // ---- CMS Admin Page ----
 let adminActiveTab = 'pricing';
+let adminUnsaved = false;
+
+const ADMIN_PAGE_CONFIG = {
+  global: {
+    label: 'Global Settings',
+    icon: '&#9881;',
+    sections: [
+      { key: 'companyName', label: 'Company Name', type: 'text' },
+      { key: 'tagline', label: 'Tagline', type: 'text' },
+      { key: 'phone', label: 'Display Phone', type: 'text' },
+      { key: 'phoneRaw', label: 'Phone (raw)', type: 'text' },
+      { key: 'email', label: 'Email', type: 'text' },
+      { key: 'hours', label: 'Business Hours', type: 'group', fields: [
+        { key: 'weekday', label: 'Weekday', type: 'text' },
+        { key: 'saturday', label: 'Saturday', type: 'text' },
+        { key: 'sunday', label: 'Sunday', type: 'text' }
+      ]},
+      { key: 'social', label: 'Social Media Links', type: 'group', fields: [
+        { key: 'facebook', label: 'Facebook URL', type: 'text' },
+        { key: 'instagram', label: 'Instagram URL', type: 'text' },
+        { key: 'tiktok', label: 'TikTok URL', type: 'text' },
+        { key: 'youtube', label: 'YouTube URL', type: 'text' }
+      ]}
+    ]
+  },
+  home: {
+    label: 'Home Page',
+    icon: '&#127968;',
+    sections: [
+      { key: 'hero', label: 'Hero Section', type: 'group', fields: [
+        { key: 'title', label: 'Headline', type: 'text' },
+        { key: 'subtitle', label: 'Subheadline', type: 'textarea' },
+        { key: 'ctaPrimary', label: 'Primary Button Text', type: 'text' },
+        { key: 'ctaSecondary', label: 'Secondary Button Text', type: 'text' }
+      ]},
+      { key: 'quoteCalc', label: 'Quote Calculator Section', type: 'group', fields: [
+        { key: 'title', label: 'Section Title', type: 'text' }
+      ]},
+      { key: 'servicesTitle', label: 'Services Section Title', type: 'text' },
+      { key: 'servicesSubtitle', label: 'Services Section Subtitle', type: 'text' },
+      { key: 'trust', label: 'Trust Section', type: 'group', fields: [
+        { key: 'title', label: 'Section Title', type: 'text' },
+        { key: 'description', label: 'Description', type: 'textarea' },
+        { key: 'items', label: 'Trust Points', type: 'array', itemFields: [
+          { key: 'title', label: 'Title', type: 'text' },
+          { key: 'description', label: 'Description', type: 'textarea' }
+        ]}
+      ]},
+      { key: 'stats', label: 'Statistics', type: 'array', itemFields: [
+        { key: 'number', label: 'Number', type: 'text' },
+        { key: 'label', label: 'Label', type: 'text' }
+      ]},
+      { key: 'blog', label: 'Blog Preview Section', type: 'group', fields: [
+        { key: 'title', label: 'Section Title', type: 'text' },
+        { key: 'subtitle', label: 'Subtitle', type: 'text' },
+        { key: 'posts', label: 'Featured Posts', type: 'array', itemFields: [
+          { key: 'title', label: 'Post Title', type: 'text' },
+          { key: 'category', label: 'Category', type: 'text' },
+          { key: 'excerpt', label: 'Excerpt', type: 'textarea' }
+        ]}
+      ]}
+    ]
+  },
+  about: {
+    label: 'About Page',
+    icon: '&#9432;',
+    sections: [
+      { key: 'title', label: 'Page Title', type: 'text' },
+      { key: 'heroText', label: 'Hero Subtitle', type: 'textarea' },
+      { key: 'content', label: 'Main Content', type: 'textarea' },
+      { key: 'sections', label: 'Content Sections', type: 'array', itemFields: [
+        { key: 'title', label: 'Section Title', type: 'text' },
+        { key: 'text', label: 'Section Text', type: 'textarea' }
+      ]}
+    ]
+  },
+  products: {
+    label: 'Products',
+    icon: '&#128722;',
+    sections: [
+      { key: 'title', label: 'Page Title', type: 'text' },
+      { key: 'items', label: 'Product Items', type: 'array', itemFields: [
+        { key: 'name', label: 'Product Name', type: 'text' },
+        { key: 'description', label: 'Description', type: 'textarea' },
+        { key: 'price', label: 'Price', type: 'text' }
+      ]}
+    ]
+  },
+  blog: {
+    label: 'Blog',
+    icon: '&#128221;',
+    sections: [
+      { key: 'title', label: 'Blog Title', type: 'text' },
+      { key: 'subtitle', label: 'Blog Subtitle', type: 'textarea' },
+      { key: 'categories', label: 'Blog Categories', type: 'array', itemFields: [
+        { key: 'name', label: 'Category Name', type: 'text' },
+        { key: 'posts', label: 'Posts', type: 'array', itemFields: [
+          { key: 'title', label: 'Post Title', type: 'text' },
+          { key: 'excerpt', label: 'Excerpt', type: 'textarea' },
+          { key: 'date', label: 'Date', type: 'text' }
+        ]}
+      ]}
+    ]
+  },
+  faq: {
+    label: 'FAQ',
+    icon: '&#10067;',
+    sections: [
+      { key: 'title', label: 'Page Title', type: 'text' },
+      { key: 'categories', label: 'FAQ Categories', type: 'array', itemFields: [
+        { key: 'name', label: 'Category Name', type: 'text' },
+        { key: 'questions', label: 'Questions', type: 'array', itemFields: [
+          { key: 'q', label: 'Question', type: 'text' },
+          { key: 'a', label: 'Answer', type: 'textarea' }
+        ]}
+      ]}
+    ]
+  },
+  contact: {
+    label: 'Contact',
+    icon: '&#9993;',
+    sections: [
+      { key: 'title', label: 'Page Title', type: 'text' },
+      { key: 'subtitle', label: 'Subtitle', type: 'textarea' },
+      { key: 'info', label: 'Contact Info', type: 'group', fields: [
+        { key: 'phone', label: 'Phone', type: 'text' },
+        { key: 'email', label: 'Email', type: 'text' },
+        { key: 'hours', label: 'Hours', type: 'text' }
+      ]}
+    ]
+  },
+  locations: {
+    label: 'Locations',
+    icon: '&#128205;',
+    sections: [
+      { key: 'title', label: 'Page Title', type: 'text' },
+      { key: 'subtitle', label: 'Subtitle', type: 'textarea' }
+    ]
+  }
+};
 
 function renderAdmin() {
-  const pages = Object.keys(CMS);
-  const pricing = CMS.pricing || { hiddenFee: { label: 'Service Fee', amount: 0 }, categories: [] };
+  const pages = Object.keys(ADMIN_PAGE_CONFIG);
 
   document.getElementById('app').innerHTML = `
-    <div class="admin-page">
-      <div class="admin-topbar">
-        <div class="admin-topbar-left">
-          <a href="/" data-link class="btn btn-sm btn-outline">View Site</a>
-          <h1>Admin Dashboard</h1>
+    <div class="adm">
+      <aside class="adm-sidebar">
+        <div class="adm-sidebar-header">
+          <a href="/" data-link class="adm-logo">Shiny Rhino</a>
+          <span class="adm-badge">CMS</span>
         </div>
-        <div class="admin-topbar-right">
-          <button class="btn btn-sm btn-outline-dark" onclick="adminExport()">Export Config</button>
-          <label class="btn btn-sm btn-outline-dark" style="cursor:pointer;">Import Config<input type="file" accept=".json" style="display:none;" onchange="adminImport(event)"></label>
-          <button class="btn btn-primary btn-sm" onclick="adminSave()">Save All Changes</button>
+        <nav class="adm-nav">
+          <button class="adm-nav-item ${adminActiveTab === 'pricing' ? 'active' : ''}" onclick="adminSwitchTab('pricing')">
+            <span class="adm-nav-icon">&#128176;</span> Pricing
+          </button>
+          <div class="adm-nav-divider">Pages</div>
+          ${pages.map(p => `
+            <button class="adm-nav-item ${adminActiveTab === p ? 'active' : ''}" onclick="adminSwitchTab('${p}')">
+              <span class="adm-nav-icon">${ADMIN_PAGE_CONFIG[p].icon}</span> ${ADMIN_PAGE_CONFIG[p].label}
+            </button>
+          `).join('')}
+          <div class="adm-nav-divider">Services</div>
+          ${Object.keys(CMS.services || {}).map(key => `
+            <button class="adm-nav-item ${adminActiveTab === 'svc_' + key ? 'active' : ''}" onclick="adminSwitchTab('svc_${key}')">
+              <span class="adm-nav-icon">${ICONS[key] ? '<span style="width:16px;height:16px;display:inline-block;">' + ICONS[key] + '</span>' : '&#8226;'}</span>
+              ${(CMS.services[key]?.title || key)}
+            </button>
+          `).join('')}
+        </nav>
+        <div class="adm-sidebar-footer">
+          <a href="/" data-link class="btn btn-sm btn-outline" style="width:100%;text-align:center;">View Live Site</a>
         </div>
-      </div>
-
-      <div class="admin-tabs">
-        <button class="admin-tab ${adminActiveTab === 'pricing' ? 'active' : ''}" onclick="adminSwitchTab('pricing')">Pricing</button>
-        ${pages.filter(p => p !== 'pricing').map(p => `
-          <button class="admin-tab ${adminActiveTab === p ? 'active' : ''}" onclick="adminSwitchTab('${p}')">${p.charAt(0).toUpperCase() + p.slice(1)}</button>
-        `).join('')}
-      </div>
-
-      <div id="adminTabContent"></div>
+      </aside>
+      <main class="adm-main">
+        <header class="adm-header">
+          <h1 id="admPageTitle">Dashboard</h1>
+          <div class="adm-header-actions">
+            <span id="admSaveStatus" class="adm-save-status"></span>
+            <button class="btn btn-sm btn-outline-dark" onclick="adminExport()">Export</button>
+            <label class="btn btn-sm btn-outline-dark" style="cursor:pointer;">Import<input type="file" accept=".json" style="display:none;" onchange="adminImport(event)"></label>
+            <button class="btn btn-primary btn-sm" onclick="adminSave()" id="admSaveBtn">Save Changes</button>
+          </div>
+        </header>
+        <div class="adm-content" id="adminTabContent"></div>
+      </main>
     </div>
   `;
 
@@ -951,136 +1223,233 @@ function renderAdmin() {
 
 function adminSwitchTab(tab) {
   adminActiveTab = tab;
-  document.querySelectorAll('.admin-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab));
+  document.querySelectorAll('.adm-nav-item').forEach(b => b.classList.remove('active'));
+  // Find matching button
+  document.querySelectorAll('.adm-nav-item').forEach(b => {
+    const text = b.textContent.trim();
+    if (tab === 'pricing' && text === 'Pricing') b.classList.add('active');
+    else if (tab.startsWith('svc_') && (CMS.services[tab.replace('svc_','')]?.title || '').trim() === text.trim()) b.classList.add('active');
+    else if (ADMIN_PAGE_CONFIG[tab] && ADMIN_PAGE_CONFIG[tab].label === text) b.classList.add('active');
+  });
   adminRenderTab();
+}
+
+function adminMarkUnsaved() {
+  adminUnsaved = true;
+  const el = document.getElementById('admSaveStatus');
+  if (el) el.textContent = 'Unsaved changes';
 }
 
 function adminRenderTab() {
   const container = document.getElementById('adminTabContent');
+  const titleEl = document.getElementById('admPageTitle');
   if (!container) return;
 
+  // Service pages
+  if (adminActiveTab.startsWith('svc_')) {
+    const svcKey = adminActiveTab.replace('svc_', '');
+    const svc = (CMS.services || {})[svcKey] || {};
+    if (titleEl) titleEl.textContent = svc.title || svcKey;
+    container.innerHTML = adminRenderServiceEditor(svcKey, svc);
+    return;
+  }
+
   if (adminActiveTab === 'pricing') {
+    if (titleEl) titleEl.textContent = 'Pricing Manager';
     const pricing = CMS.pricing || { hiddenFee: { label: 'Service Fee', amount: 0 }, categories: [] };
     container.innerHTML = `
-      <div class="admin-section">
-        <h2>Hidden Fee (not visible to customer)</h2>
-        <div class="admin-fee-row">
-          <label>Label: <input type="text" id="adminFeeLabel" value="${(pricing.hiddenFee?.label || '').replace(/"/g, '&quot;')}"></label>
-          <label>Amount ($): <input type="number" id="adminFeeAmount" value="${pricing.hiddenFee?.amount || 0}" min="0" step="0.01"></label>
+      <div class="adm-card">
+        <div class="adm-card-header">
+          <h2>Hidden Service Fee</h2>
+          <span class="adm-card-hint">Not visible to customers. Applied automatically to all quotes.</span>
+        </div>
+        <div class="adm-card-body adm-row">
+          <div class="adm-input-group">
+            <label>Label</label>
+            <input type="text" id="adminFeeLabel" value="${(pricing.hiddenFee?.label || '').replace(/"/g, '&quot;')}" oninput="adminMarkUnsaved()">
+          </div>
+          <div class="adm-input-group" style="max-width:160px;">
+            <label>Amount ($)</label>
+            <input type="number" id="adminFeeAmount" value="${pricing.hiddenFee?.amount || 0}" min="0" step="0.01" oninput="adminMarkUnsaved()">
+          </div>
         </div>
       </div>
       <div id="adminCategories"></div>
       <button class="btn btn-secondary" onclick="adminAddCategory()" style="margin:24px 0 40px;">+ Add New Category</button>
     `;
     adminRenderCategories();
-  } else {
-    const data = CMS[adminActiveTab];
-    container.innerHTML = `
-      <div class="admin-section">
-        <h2>Edit: ${adminActiveTab.charAt(0).toUpperCase() + adminActiveTab.slice(1)}</h2>
-        <div id="adminGenericEditor"></div>
-      </div>
-    `;
-    document.getElementById('adminGenericEditor').innerHTML = renderCMSFields(data, adminActiveTab, adminActiveTab);
+  } else if (ADMIN_PAGE_CONFIG[adminActiveTab]) {
+    const config = ADMIN_PAGE_CONFIG[adminActiveTab];
+    if (titleEl) titleEl.textContent = config.label;
+    const data = CMS[adminActiveTab] || {};
+    container.innerHTML = adminRenderStructuredEditor(adminActiveTab, data, config.sections);
   }
 }
 
-// Generic CMS field renderer for all content
-function renderCMSFields(obj, path, rootPage) {
-  if (!obj || typeof obj !== 'object') return '';
-  let html = '';
-
-  if (Array.isArray(obj)) {
-    obj.forEach((item, i) => {
-      const itemPath = `${path}[${i}]`;
-      html += `<div class="admin-array-item">`;
-      html += `<div class="admin-array-item-header"><span>Item ${i + 1}</span><button class="btn btn-sm" style="color:var(--red);" onclick="adminDeleteArrayItem('${rootPage}','${path}',${i})">Remove</button></div>`;
-      if (typeof item === 'object') {
-        html += renderCMSFields(item, itemPath, rootPage);
-      } else {
-        html += `<input type="text" value="${String(item).replace(/"/g, '&quot;')}" class="admin-field-input" onchange="updateCMSField('${rootPage}', '${path}', ${i}, this.value)">`;
-      }
-      html += '</div>';
-    });
-    html += `<button class="btn btn-sm btn-outline-dark" style="margin-top:8px;" onclick="adminAddArrayItem('${rootPage}','${path}')">+ Add Item</button>`;
-    return html;
-  }
-
-  Object.entries(obj).forEach(([key, value]) => {
-    const fieldPath = `${path}.${key}`;
-    if (typeof value === 'string') {
-      const isLong = value.length > 100;
-      html += `<div class="admin-field">
-        <label class="admin-field-label">${key}</label>
-        ${isLong
-          ? `<textarea class="admin-field-textarea" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, this.value)">${value}</textarea>`
-          : `<input type="text" value="${value.replace(/"/g, '&quot;')}" class="admin-field-input" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, this.value)">`
-        }
-      </div>`;
-    } else if (typeof value === 'number') {
-      html += `<div class="admin-field">
-        <label class="admin-field-label">${key}</label>
-        <input type="number" value="${value}" class="admin-field-input" step="any" onchange="updateCMSField('${rootPage}', '${fieldPath}', null, parseFloat(this.value)||0)">
-      </div>`;
-    } else if (typeof value === 'object' && value !== null) {
-      html += `<details class="admin-field-group" ${path === rootPage ? 'open' : ''}>
-        <summary>${key} ${Array.isArray(value) ? '(' + value.length + ')' : ''}</summary>
-        <div class="admin-field-group-body">${renderCMSFields(value, fieldPath, rootPage)}</div>
-      </details>`;
+function adminRenderStructuredEditor(page, data, sections, pathPrefix) {
+  const basePath = pathPrefix || page;
+  return sections.map(field => {
+    const val = data?.[field.key];
+    if (field.type === 'text') {
+      return `<div class="adm-card"><div class="adm-card-body">
+        <div class="adm-input-group">
+          <label>${field.label}</label>
+          <input type="text" value="${(val || '').toString().replace(/"/g, '&quot;')}" onchange="adminSetField('${page}','${basePath}.${field.key}', this.value); adminMarkUnsaved()">
+        </div>
+      </div></div>`;
     }
-  });
-
-  return html;
+    if (field.type === 'textarea') {
+      return `<div class="adm-card"><div class="adm-card-body">
+        <div class="adm-input-group">
+          <label>${field.label}</label>
+          <textarea rows="3" onchange="adminSetField('${page}','${basePath}.${field.key}', this.value); adminMarkUnsaved()">${val || ''}</textarea>
+        </div>
+      </div></div>`;
+    }
+    if (field.type === 'group') {
+      return `<div class="adm-card">
+        <div class="adm-card-header"><h2>${field.label}</h2></div>
+        <div class="adm-card-body">
+          ${adminRenderStructuredEditor(page, val || {}, field.fields, basePath + '.' + field.key)}
+        </div>
+      </div>`;
+    }
+    if (field.type === 'array') {
+      const arr = val || [];
+      return `<div class="adm-card">
+        <div class="adm-card-header"><h2>${field.label} <span class="adm-count">${arr.length}</span></h2></div>
+        <div class="adm-card-body">
+          ${arr.map((item, i) => `
+            <div class="adm-array-card">
+              <div class="adm-array-card-head">
+                <span class="adm-array-num">${i + 1}</span>
+                <span class="adm-array-title">${item[field.itemFields[0]?.key] || 'Item ' + (i+1)}</span>
+                <div class="adm-array-actions">
+                  ${i > 0 ? `<button class="adm-icon-btn" onclick="adminMoveArrayItem('${page}','${basePath}.${field.key}',${i},-1)" title="Move up">&#9650;</button>` : ''}
+                  ${i < arr.length - 1 ? `<button class="adm-icon-btn" onclick="adminMoveArrayItem('${page}','${basePath}.${field.key}',${i},1)" title="Move down">&#9660;</button>` : ''}
+                  <button class="adm-icon-btn adm-icon-btn--danger" onclick="adminRemoveArrayItem('${page}','${basePath}.${field.key}',${i})" title="Remove">&#10005;</button>
+                </div>
+              </div>
+              <div class="adm-array-card-body">
+                ${field.itemFields.map(sf => {
+                  const sfVal = item?.[sf.key];
+                  if (sf.type === 'text') {
+                    return `<div class="adm-input-group"><label>${sf.label}</label><input type="text" value="${(sfVal || '').toString().replace(/"/g, '&quot;')}" onchange="adminSetField('${page}','${basePath}.${field.key}[${i}].${sf.key}', this.value); adminMarkUnsaved()"></div>`;
+                  }
+                  if (sf.type === 'textarea') {
+                    return `<div class="adm-input-group"><label>${sf.label}</label><textarea rows="2" onchange="adminSetField('${page}','${basePath}.${field.key}[${i}].${sf.key}', this.value); adminMarkUnsaved()">${sfVal || ''}</textarea></div>`;
+                  }
+                  if (sf.type === 'array') {
+                    const nested = sfVal || [];
+                    return `<div class="adm-nested-array">
+                      <label>${sf.label} <span class="adm-count">${nested.length}</span></label>
+                      ${nested.map((ni, ni_idx) => `
+                        <div class="adm-nested-item">
+                          ${sf.itemFields.map(nf => {
+                            const nfVal = ni?.[nf.key];
+                            return `<div class="adm-input-group adm-input-inline"><label>${nf.label}</label>${nf.type === 'textarea'
+                              ? `<textarea rows="2" onchange="adminSetField('${page}','${basePath}.${field.key}[${i}].${sf.key}[${ni_idx}].${nf.key}', this.value); adminMarkUnsaved()">${nfVal || ''}</textarea>`
+                              : `<input type="text" value="${(nfVal || '').toString().replace(/"/g, '&quot;')}" onchange="adminSetField('${page}','${basePath}.${field.key}[${i}].${sf.key}[${ni_idx}].${nf.key}', this.value); adminMarkUnsaved()">`
+                            }</div>`;
+                          }).join('')}
+                          <button class="adm-icon-btn adm-icon-btn--danger" onclick="adminRemoveArrayItem('${page}','${basePath}.${field.key}[${i}].${sf.key}',${ni_idx})" title="Remove">&#10005;</button>
+                        </div>
+                      `).join('')}
+                      <button class="btn btn-sm btn-outline-dark" onclick="adminPushArrayItem('${page}','${basePath}.${field.key}[${i}].${sf.key}', ${JSON.stringify(sf.itemFields.reduce((o,f)=>({...o,[f.key]:''}),{})).replace(/"/g, '&quot;')})">+ Add</button>
+                    </div>`;
+                  }
+                  return '';
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+          <button class="btn btn-sm btn-outline-dark" style="margin-top:12px;" onclick="adminPushArrayItem('${page}','${basePath}.${field.key}', ${JSON.stringify(field.itemFields.reduce((o,f)=>({...o,[f.key]: f.type === 'array' ? [] : ''}),{})).replace(/"/g, '&quot;')})">+ Add ${field.label.replace(/s$/, '')}</button>
+        </div>
+      </div>`;
+    }
+    return '';
+  }).join('');
 }
 
-function updateCMSField(rootPage, path, index, value) {
-  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
-  let obj = CMS[rootPage];
+function adminRenderServiceEditor(svcKey, svc) {
+  const page = 'services';
+  const base = `services.${svcKey}`;
+  const sections = [
+    { key: 'title', label: 'Service Title', type: 'text' },
+    { key: 'heroText', label: 'Hero Text', type: 'textarea' },
+    { key: 'quoteTitle', label: 'Quote Box Title', type: 'text' },
+    { key: 'quoteSubtitle', label: 'Quote Box Subtitle', type: 'text' },
+    { key: 'content', label: 'Main Content', type: 'textarea' },
+    { key: 'process', label: 'Cleaning Process', type: 'group', fields: [
+      { key: 'title', label: 'Section Title', type: 'text' },
+      { key: 'steps', label: 'Steps', type: 'array', itemFields: [
+        { key: 'title', label: 'Step Title', type: 'text' },
+        { key: 'description', label: 'Description', type: 'textarea' }
+      ]}
+    ]},
+    { key: 'features', label: 'Features', type: 'array', itemFields: [
+      { key: 'title', label: 'Feature Title', type: 'text' },
+      { key: 'description', label: 'Description', type: 'textarea' }
+    ]},
+    { key: 'faq', label: 'FAQ', type: 'array', itemFields: [
+      { key: 'q', label: 'Question', type: 'text' },
+      { key: 'a', label: 'Answer', type: 'textarea' }
+    ]},
+    { key: 'commercial', label: 'Commercial Section', type: 'group', fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'description', label: 'Description', type: 'textarea' }
+    ]}
+  ];
+  return adminRenderStructuredEditor(page, svc, sections, base);
+}
+
+// Navigate a dot/bracket path and set value
+function adminSetField(rootPage, path, value) {
+  const parts = path.split(/\.|\[|\]/).filter(Boolean);
+  let obj = CMS;
   for (let i = 0; i < parts.length - 1; i++) {
+    if (obj[parts[i]] === undefined) obj[parts[i]] = {};
     obj = obj[parts[i]];
   }
-  const lastKey = index !== null ? index : parts[parts.length - 1];
-  obj[lastKey] = value;
+  obj[parts[parts.length - 1]] = value;
 }
 
-function adminDeleteArrayItem(rootPage, path, index) {
-  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
-  let obj = CMS[rootPage];
-  for (let i = 0; i < parts.length; i++) {
-    obj = obj[parts[i]];
+function adminGetByPath(path) {
+  const parts = path.split(/\.|\[|\]/).filter(Boolean);
+  let obj = CMS;
+  for (const p of parts) {
+    if (obj === undefined) return undefined;
+    obj = obj[p];
   }
-  if (Array.isArray(obj)) {
-    obj.splice(index, 1);
+  return obj;
+}
+
+function adminRemoveArrayItem(rootPage, path, index) {
+  const arr = adminGetByPath(path);
+  if (Array.isArray(arr)) {
+    arr.splice(index, 1);
+    adminMarkUnsaved();
     adminRenderTab();
   }
 }
 
-function adminAddArrayItem(rootPage, path) {
-  const parts = path.replace(rootPage + '.', '').split(/\.|\[|\]/).filter(Boolean);
-  let obj = CMS[rootPage];
-  for (let i = 0; i < parts.length; i++) {
-    obj = obj[parts[i]];
-  }
-  if (Array.isArray(obj)) {
-    if (obj.length > 0 && typeof obj[0] === 'object') {
-      // Clone structure of first item with empty values
-      const template = JSON.parse(JSON.stringify(obj[0]));
-      clearValues(template);
-      obj.push(template);
-    } else {
-      obj.push('');
-    }
+function adminPushArrayItem(rootPage, path, template) {
+  const arr = adminGetByPath(path);
+  if (Array.isArray(arr)) {
+    arr.push(typeof template === 'string' ? JSON.parse(template) : JSON.parse(JSON.stringify(template)));
+    adminMarkUnsaved();
     adminRenderTab();
   }
 }
 
-function clearValues(obj) {
-  for (const key in obj) {
-    if (typeof obj[key] === 'string') obj[key] = '';
-    else if (typeof obj[key] === 'number') obj[key] = 0;
-    else if (Array.isArray(obj[key])) obj[key] = [];
-    else if (typeof obj[key] === 'object' && obj[key] !== null) clearValues(obj[key]);
-  }
+function adminMoveArrayItem(rootPage, path, index, direction) {
+  const arr = adminGetByPath(path);
+  if (!Array.isArray(arr)) return;
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= arr.length) return;
+  [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
+  adminMarkUnsaved();
+  adminRenderTab();
 }
 
 function adminRenderCategories() {
@@ -1089,49 +1458,47 @@ function adminRenderCategories() {
   if (!container) return;
 
   container.innerHTML = pricing.categories.map((cat, ci) => `
-    <div class="admin-section admin-category" data-ci="${ci}">
-      <div class="admin-category-header">
-        <input type="text" class="admin-category-name" value="${cat.name.replace(/"/g, '&quot;')}" onchange="adminUpdateCatName(${ci}, this.value)">
-        <button class="btn btn-sm" style="color:var(--red);border:1px solid var(--red);background:none;" onclick="adminDeleteCategory(${ci})">Delete Category</button>
+    <div class="adm-card">
+      <div class="adm-card-header">
+        <h2><input type="text" class="adm-inline-edit" value="${cat.name.replace(/"/g, '&quot;')}" onchange="adminUpdateCatName(${ci}, this.value); adminMarkUnsaved()"></h2>
+        <button class="adm-icon-btn adm-icon-btn--danger" onclick="adminDeleteCategory(${ci})" title="Delete category">&#10005;</button>
       </div>
-      <table class="admin-items-table">
-        <thead>
-          <tr><th>Name</th><th>Description</th><th>Price</th><th>Unit</th><th></th></tr>
-        </thead>
-        <tbody>
-          ${cat.items.map((item, ii) => `
-            <tr>
-              <td><input type="text" value="${item.name.replace(/"/g, '&quot;')}" onchange="adminUpdateItem(${ci},${ii},'name',this.value)"></td>
-              <td><input type="text" value="${item.description.replace(/"/g, '&quot;')}" onchange="adminUpdateItem(${ci},${ii},'description',this.value)"></td>
-              <td><input type="number" value="${item.price}" min="0" step="0.01" onchange="adminUpdateItem(${ci},${ii},'price',parseFloat(this.value)||0)"></td>
-              <td><input type="text" value="${item.unit}" onchange="adminUpdateItem(${ci},${ii},'unit',this.value)"></td>
-              <td><button class="btn btn-sm" style="color:var(--red);" onclick="adminDeleteItem(${ci},${ii})">X</button></td>
-            </tr>
-            <tr class="admin-item-expandable">
-              <td colspan="5">
-                <details>
+      <div class="adm-card-body">
+        <table class="adm-table">
+          <thead><tr><th>Name</th><th>Description</th><th style="width:80px;">Price</th><th style="width:80px;">Unit</th><th style="width:40px;"></th></tr></thead>
+          <tbody>
+            ${cat.items.map((item, ii) => `
+              <tr>
+                <td><input type="text" value="${item.name.replace(/"/g, '&quot;')}" onchange="adminUpdateItem(${ci},${ii},'name',this.value); adminMarkUnsaved()"></td>
+                <td><input type="text" value="${item.description.replace(/"/g, '&quot;')}" onchange="adminUpdateItem(${ci},${ii},'description',this.value); adminMarkUnsaved()"></td>
+                <td><input type="number" value="${item.price}" min="0" step="0.01" onchange="adminUpdateItem(${ci},${ii},'price',parseFloat(this.value)||0); adminMarkUnsaved()"></td>
+                <td><input type="text" value="${item.unit}" onchange="adminUpdateItem(${ci},${ii},'unit',this.value); adminMarkUnsaved()"></td>
+                <td><button class="adm-icon-btn adm-icon-btn--danger" onclick="adminDeleteItem(${ci},${ii})">&#10005;</button></td>
+              </tr>
+              <tr><td colspan="5">
+                <details class="adm-details">
                   <summary>Add-ons & Instructions</summary>
-                  <div class="admin-addons-section">
-                    <div class="admin-addons-list" id="adminAddons_${ci}_${ii}">
-                      ${(item.addons || []).map((addon, ai) => `
-                        <div class="admin-addon-row">
-                          <input type="text" value="${addon.name.replace(/"/g, '&quot;')}" placeholder="Add-on name" onchange="adminUpdateAddon(${ci},${ii},${ai},'name',this.value)">
-                          <input type="number" value="${addon.price}" min="0" step="0.01" placeholder="Price" onchange="adminUpdateAddon(${ci},${ii},${ai},'price',parseFloat(this.value)||0)">
-                          <button class="btn btn-sm" style="color:var(--red);" onclick="adminDeleteAddon(${ci},${ii},${ai})">X</button>
-                        </div>
-                      `).join('')}
-                    </div>
+                  <div style="padding:12px 0;">
+                    ${(item.addons || []).map((addon, ai) => `
+                      <div class="adm-row" style="margin-bottom:8px;">
+                        <input type="text" value="${addon.name.replace(/"/g, '&quot;')}" placeholder="Add-on name" onchange="adminUpdateAddon(${ci},${ii},${ai},'name',this.value); adminMarkUnsaved()" style="flex:2;">
+                        <input type="number" value="${addon.price}" min="0" step="0.01" placeholder="Price" onchange="adminUpdateAddon(${ci},${ii},${ai},'price',parseFloat(this.value)||0); adminMarkUnsaved()" style="flex:1;">
+                        <button class="adm-icon-btn adm-icon-btn--danger" onclick="adminDeleteAddon(${ci},${ii},${ai})">&#10005;</button>
+                      </div>
+                    `).join('')}
                     <button class="btn btn-sm btn-outline-dark" onclick="adminAddAddon(${ci},${ii})">+ Add Add-on</button>
-                    <label style="display:block;margin-top:12px;font-weight:600;font-size:0.85rem;">Instructions</label>
-                    <textarea onchange="adminUpdateItem(${ci},${ii},'instructions',this.value)" placeholder="Special instructions for this item...">${item.instructions || ''}</textarea>
+                    <div class="adm-input-group" style="margin-top:12px;">
+                      <label>Instructions</label>
+                      <textarea rows="2" onchange="adminUpdateItem(${ci},${ii},'instructions',this.value); adminMarkUnsaved()" placeholder="Special instructions...">${item.instructions || ''}</textarea>
+                    </div>
                   </div>
                 </details>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-      <button class="btn btn-sm btn-outline-dark" onclick="adminAddItem(${ci})" style="margin-top:12px;">+ Add Item</button>
+              </td></tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <button class="btn btn-sm btn-outline-dark" onclick="adminAddItem(${ci})" style="margin-top:12px;">+ Add Item</button>
+      </div>
     </div>
   `).join('');
 }
@@ -1187,10 +1554,16 @@ async function adminSave() {
       label: document.getElementById('adminFeeLabel')?.value || 'Service Fee',
       amount: parseFloat(document.getElementById('adminFeeAmount')?.value) || 0
     };
+    await saveCMS('pricing', CMS.pricing);
+  } else if (adminActiveTab.startsWith('svc_')) {
+    await saveCMS('services', CMS.services);
+  } else {
+    await saveCMS(adminActiveTab, CMS[adminActiveTab]);
   }
-  // Save active tab's data
-  await saveCMS(adminActiveTab, CMS[adminActiveTab]);
-  alert(`${adminActiveTab.charAt(0).toUpperCase() + adminActiveTab.slice(1)} saved!`);
+  adminUnsaved = false;
+  const el = document.getElementById('admSaveStatus');
+  if (el) { el.textContent = 'Saved!'; el.style.color = 'var(--green)'; setTimeout(() => { el.textContent = ''; }, 2000); }
+  showToast('Changes saved successfully!');
 }
 
 function adminExport() {
@@ -1211,9 +1584,10 @@ function adminImport(e) {
       const imported = JSON.parse(ev.target.result);
       CMS.pricing = imported;
       await saveCMS('pricing', CMS.pricing);
+      showToast('Config imported successfully!');
       renderAdmin();
     } catch (err) {
-      alert('Invalid JSON file.');
+      showToast('Invalid JSON file.');
     }
   };
   reader.readAsText(file);
@@ -1273,7 +1647,7 @@ document.getElementById('footerNewsletter')?.addEventListener('submit', async (e
     body: JSON.stringify({ email: input.value })
   });
   input.value = '';
-  alert('Thanks for subscribing!');
+  showToast('Thanks for subscribing!');
 });
 
 // Sticky navbar shadow

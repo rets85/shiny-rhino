@@ -124,7 +124,7 @@ app.get('/robots.txt', (req, res) => {
   res.type('text/plain').send(
 `User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /sh-admin
 Disallow: /api/
 
 Sitemap: ${BASE_URL}/sitemap.xml`
@@ -140,8 +140,8 @@ app.get('/sitemap.xml', (req, res) => {
 // Define explicit routes for SSR so each page gets proper meta + content
 
 const ssrRoutes = [
-  '/', '/quote', '/products', '/about', '/blog', '/faq',
-  '/locations', '/contact', '/admin',
+  '/', '/quote', '/quote/commercial', '/products', '/about', '/blog', '/faq',
+  '/locations', '/contact', '/sh-admin',
   '/services/carpet', '/services/upholstery', '/services/tile',
   '/services/hardwood', '/services/rug', '/services/stone',
   '/services/water', '/services/vehicle',
