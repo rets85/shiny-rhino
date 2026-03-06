@@ -33,15 +33,20 @@ Single-page application (SPA) for a carpet cleaning business with server-side re
 - `/services/:key` - Service pages (carpet, upholstery, tile, hardwood, rug, stone, water, vehicle)
 - `/products` - Products listing with working cart (inline toast, +/- qty, sidebar total)
 - `/products/:slug` - Individual product detail pages (SEO-friendly slugs)
-- `/about`, `/blog`, `/faq`, `/locations`, `/contact` - Content pages
+- `/blog` - Blog listing with category filters, sorted by date
+- `/blog/:slug` - Individual blog post pages (full content, author, date)
+- `/about`, `/faq`, `/locations`, `/contact` - Content pages
 - `/robots.txt`, `/sitemap.xml` - SEO files (auto-generated, includes product URLs)
 
 ## CMS Admin (`/sh-admin`)
 - Sidebar navigation: Pricing, Pages (Global, Home, About, Products, Blog, FAQ, Contact, Locations), Services (each service individually)
 - Structured field editors with labeled inputs (not generic recursive JSON)
 - Array items with reorder (up/down), add, remove
-- Nested arrays supported (e.g. blog categories > posts, FAQ categories > questions)
+- Nested arrays supported (e.g. FAQ categories > questions)
 - Pricing tab: hidden fee, categories with items table, add-ons, instructions
+- Blog manager: post list table, new/edit/delete, Quill.js WYSIWYG editor (visual + HTML toggle)
+- Blog SEO panel (Yoast-style): meta title, meta description, focus keyword, OG image, Google preview
+- Blog post fields: title, slug, author, date, category, status (published/draft)
 - Export/Import for pricing config
 - Save status indicator, toast notifications
 
@@ -49,6 +54,8 @@ Single-page application (SPA) for a carpet cleaning business with server-side re
 - `cms-defaults.json` - Default content (committed to git, used as bootstrap)
 - `cms-data.json` - Runtime data (gitignored, created from defaults on first run)
 - `pricing` key controls the quote calculator pricing
+- `blog.posts` flat array with slug, author, date, content (HTML), status, seo object
+- `blog.authors` array for author management
 - API: `GET/PUT/PATCH /api/content/:page`
 
 ## Design Notes
