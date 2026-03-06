@@ -78,7 +78,7 @@ button { cursor: pointer; font-family: inherit; }
 
 /* ======= NAVBAR ======= */
 .navbar { background: var(--white); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 80px; }
 .logo { display: flex; align-items: center; gap: 8px; }
 .logo-icon { font-size: 2rem; }
 .logo-text { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--dark); letter-spacing: -0.5px; }
@@ -243,7 +243,7 @@ button { cursor: pointer; font-family: inherit; }
 .footer { background: var(--dark); color: var(--white); padding: 60px 0 0; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 40px; }
 .footer-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-.footer-logo img { border-radius: var(--radius); background: var(--white); padding: 6px; }
+.footer-logo img { border-radius: var(--radius); }
 .footer-logo .logo-text { color: var(--white); }
 .footer-tagline { font-size: 0.9rem; opacity: 0.7; margin-bottom: 20px; line-height: 1.6; }
 .footer-newsletter { margin-bottom: 20px; }
@@ -414,7 +414,8 @@ button { cursor: pointer; font-family: inherit; }
 .calc-header h1 { font-size: 2rem; margin-bottom: 8px; }
 .calc-header p { opacity: 0.9; font-size: 1.05rem; }
 .calc-back { position: absolute; left: 20px; top: 20px; color: var(--primary-light); font-size: 0.9rem; }
-.calc-switch-link { position: absolute; right: 20px; top: 20px; color: var(--white) !important; border-color: rgba(255,255,255,0.5) !important; }
+.calc-switch-link { position: absolute; right: 20px; top: 20px; color: var(--white); border-color: rgba(255,255,255,0.5); }
+.calc-switch-link:hover { background: var(--white); color: var(--primary-dark); }
 .calc-header--biz { background: linear-gradient(135deg, var(--dark), var(--dark-light)); }
 .calc-layout { max-width: 1200px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
 .calc-main { }

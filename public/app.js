@@ -236,7 +236,7 @@ function renderHome() {
         <h2 class="section-title">${trust.title || ''}</h2>
         <div class="trust-layout">
           <div class="trust-image">
-            <img src="/logo.jpg" alt="Shiny Rhino">
+            <img src="/logo.png" alt="Shiny Rhino">
           </div>
           <div class="trust-details">
             <p style="margin-bottom:24px;color:var(--text-light);line-height:1.7;">${trust.description || ''}</p>
