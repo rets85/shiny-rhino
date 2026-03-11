@@ -1,0 +1,99 @@
+/* ============================================
+   SHINY RHINO - Location Page Styles
+   ============================================ */
+
+/* Breadcrumb */
+.loc-breadcrumb { background: var(--gray-light); padding: 12px 0; border-bottom: 1px solid var(--gray); }
+.loc-breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; padding: 0; }
+.loc-breadcrumb li { font-size: 0.85rem; color: var(--text-muted); }
+.loc-breadcrumb li + li::before { content: '/'; margin-right: 8px; color: var(--gray-dark); }
+.loc-breadcrumb a { color: var(--primary-dark); }
+.loc-breadcrumb a:hover { color: var(--primary); text-decoration: underline; }
+
+/* Layout */
+.loc-main { padding: 40px 0 60px; }
+.loc-layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
+
+/* Content area */
+.loc-content { min-width: 0; }
+.loc-content h1 { font-size: 2rem; color: var(--dark); margin-bottom: 20px; }
+.loc-content h2 { font-size: 1.5rem; color: var(--dark); margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+.loc-content h3 { font-size: 1.15rem; color: var(--dark-light); margin: 28px 0 10px; }
+.loc-content p { margin-bottom: 16px; line-height: 1.7; }
+.loc-content ul, .loc-content ol { padding-left: 24px; margin-bottom: 16px; }
+.loc-content li { margin-bottom: 8px; line-height: 1.6; }
+.loc-content li::marker { color: var(--primary); }
+.loc-content a { color: var(--primary-dark); font-weight: 600; }
+.loc-content a:hover { color: var(--primary); text-decoration: underline; }
+
+/* Pricing table */
+.loc-pricing-table { width: 100%; border-collapse: collapse; margin: 20px 0 24px; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.loc-pricing-table thead { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+.loc-pricing-table th { padding: 14px 16px; color: var(--white); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; }
+.loc-pricing-table td { padding: 12px 16px; border-bottom: 1px solid var(--gray); font-size: 0.95rem; }
+.loc-pricing-table tbody tr:hover { background: var(--primary-lightest); transition: background 0.15s; }
+.loc-pricing-table tbody tr:last-child td { border-bottom: none; }
+.loc-pricing-table td:nth-child(2) { font-weight: 700; color: var(--dark); white-space: nowrap; }
+
+/* FAQ */
+.loc-faq { margin: 20px 0; }
+.loc-faq-item { border: 1px solid var(--gray); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.loc-faq-q { font-size: 1rem; font-weight: 700; padding: 16px 20px; margin: 0; cursor: pointer; background: var(--off-white); color: var(--dark); transition: background 0.15s; }
+.loc-faq-q:hover { background: var(--primary-lightest); }
+.loc-faq-a { padding: 0 20px 16px; }
+.loc-faq-a p { margin: 12px 0 0; color: var(--text-light); }
+
+/* CTA buttons */
+.loc-cta-buttons { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
+.loc-cta-buttons .btn { padding: 14px 32px; font-size: 1.05rem; }
+
+/* Sidebar */
+.loc-sidebar { position: sticky; top: 100px; align-self: start; }
+.loc-sidebar-card { background: var(--white); border: 1px solid var(--gray); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+.loc-sidebar-card h3 { font-size: 1.1rem; color: var(--dark); margin-bottom: 12px; }
+.loc-sidebar-card p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 16px; }
+.loc-sidebar-quote { background: linear-gradient(135deg, var(--primary-lightest) 0%, var(--white) 100%); border-color: var(--primary-light); }
+.loc-sidebar-list { list-style: none; padding: 0; }
+.loc-sidebar-list li { padding: 8px 0; border-bottom: 1px solid var(--gray-light); font-size: 0.9rem; color: var(--text); }
+.loc-sidebar-list li:last-child { border-bottom: none; }
+.loc-sidebar-list li::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; margin-right: 10px; vertical-align: middle; }
+.loc-sidebar-list a { color: var(--primary-dark); font-weight: 600; }
+.loc-sidebar-list a:hover { color: var(--primary); }
+
+/* Location links grid */
+.loc-other-cities { margin-top: 48px; padding-top: 32px; border-top: 2px solid var(--gray); }
+.loc-other-cities h2 { border-bottom: none; margin-top: 0; }
+.loc-city-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 16px; }
+.loc-city-grid a { font-size: 0.85rem; color: var(--primary-dark); padding: 4px 0; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loc-city-grid a:hover { color: var(--primary); text-decoration: underline; }
+
+/* State index page */
+.loc-state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+.loc-state-card { display: block; padding: 20px; background: var(--white); border: 1px solid var(--gray); border-radius: var(--radius); text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--dark); transition: all 0.2s; }
+.loc-state-card:hover { border-color: var(--primary); box-shadow: var(--shadow); transform: translateY(-2px); color: var(--primary-dark); }
+.loc-state-card .loc-state-count { display: block; font-size: 0.8rem; font-weight: 400; color: var(--text-muted); margin-top: 4px; }
+
+/* Responsive */
+@media (max-width: 991px) {
+  .loc-layout { grid-template-columns: 1fr; }
+  .loc-sidebar { position: static; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .loc-city-grid { grid-template-columns: repeat(3, 1fr); }
+  .loc-state-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .loc-content h1 { font-size: 1.5rem; }
+  .loc-content h2 { font-size: 1.25rem; }
+  .loc-sidebar { grid-template-columns: 1fr; }
+  .loc-city-grid { grid-template-columns: repeat(2, 1fr); }
+  .loc-state-grid { grid-template-columns: repeat(2, 1fr); }
+  .loc-cta-buttons { flex-direction: column; }
+  .loc-pricing-table { font-size: 0.85rem; }
+  .loc-pricing-table th, .loc-pricing-table td { padding: 10px 10px; }
+}
+@media (max-width: 480px) {
+  .loc-pricing-table thead { display: none; }
+  .loc-pricing-table, .loc-pricing-table tbody, .loc-pricing-table tr, .loc-pricing-table td { display: block; }
+  .loc-pricing-table tr { margin-bottom: 12px; border: 1px solid var(--gray); border-radius: var(--radius); padding: 12px; }
+  .loc-pricing-table td { border-bottom: none; padding: 4px 0; }
+  .loc-pricing-table td::before { content: attr(data-label); font-weight: 700; color: var(--dark); display: block; font-size: 0.8rem; text-transform: uppercase; }
+}

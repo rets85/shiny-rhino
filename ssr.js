@@ -3,6 +3,9 @@
 // Generates HTML content, meta tags, structured data for each route
 // ============================================
 
+const fs = require('fs');
+const path = require('path');
+
 function escHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -730,10 +733,42 @@ function ssrFAQ(CMS) {
 
 function ssrLocations(CMS) {
   const d = CMS.locations || {};
+  const locDir = path.join(__dirname, 'public', 'locations');
+
+  // Scan for generated state directories
+  let stateCards = '';
+  if (fs.existsSync(locDir)) {
+    const states = fs.readdirSync(locDir)
+      .filter(f => {
+        const full = path.join(locDir, f);
+        return fs.statSync(full).isDirectory() && /^[a-z]/.test(f);
+      })
+      .map(slug => {
+        const cityCount = fs.readdirSync(path.join(locDir, slug)).filter(f => f.endsWith('.html')).length;
+        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        return { slug, name, cityCount };
+      })
+      .filter(s => s.cityCount > 0)
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (states.length > 0) {
+      stateCards = `
+      <section class="page-content"><div class="container">
+        <h2 class="section-title">Browse by State</h2>
+        <p class="section-subtitle">Select your state to find carpet cleaning services near you.</p>
+        <div class="loc-state-grid">
+          ${states.map(s => `<a href="/locations/${s.slug}" class="loc-state-card">${escHtml(s.name)}<span class="loc-state-count">${s.cityCount} cities</span></a>`).join('')}
+        </div>
+      </div></section>`;
+    }
+  }
+
   return `
     <section class="locations-hero"><div class="container">
-      <h1>${escHtml(d.title)}</h1><p>${escHtml(d.subtitle)}</p>
-    </div></section>`;
+      <h1>${escHtml(d.title || 'Find a Carpet Cleaning Location Near You')}</h1>
+      <p>${escHtml(d.subtitle || 'Professional carpet cleaning services in cities across the United States. Select your state to get started.')}</p>
+    </div></section>
+    ${stateCards}`;
 }
 
 function ssrContact(CMS) {
@@ -824,7 +859,28 @@ function generateSitemap(baseUrl, CMS) {
       freq: 'weekly'
     }));
 
-  const allRoutes = [...staticRoutes, ...serviceRoutes, ...productRoutes, ...blogRoutes];
+  // Location pages - scan filesystem for generated pages
+  const locationRoutes = [];
+  const locDir = path.join(__dirname, 'public', 'locations');
+  if (fs.existsSync(locDir)) {
+    const stateDirs = fs.readdirSync(locDir).filter(f => {
+      const full = path.join(locDir, f);
+      return fs.statSync(full).isDirectory() && /^[a-z]/.test(f);
+    });
+    for (const stateSlug of stateDirs) {
+      locationRoutes.push({ path: `/locations/${stateSlug}`, priority: '0.6', freq: 'monthly' });
+      const cityFiles = fs.readdirSync(path.join(locDir, stateSlug)).filter(f => f.endsWith('.html'));
+      for (const cityFile of cityFiles) {
+        locationRoutes.push({
+          path: `/locations/${stateSlug}/${cityFile.replace('.html', '')}`,
+          priority: '0.5',
+          freq: 'monthly'
+        });
+      }
+    }
+  }
+
+  const allRoutes = [...staticRoutes, ...serviceRoutes, ...productRoutes, ...blogRoutes, ...locationRoutes];
 
   const today = new Date().toISOString().split('T')[0];
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

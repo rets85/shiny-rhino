@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4AADE0">
+  <title>Carpet Cleaning in {{city_display}}, {{state_abbrev}} | Shiny Rhino</title>
+  <meta name="description" content="Professional carpet cleaning services in {{city_display}}, {{state_abbrev}}. Hot water extraction, upholstery cleaning, tile and grout. Free quotes. Call (484) 630-1533.">
+  <meta property="og:title" content="Carpet Cleaning in {{city_display}}, {{state_abbrev}} | Shiny Rhino">
+  <meta property="og:description" content="Professional carpet cleaning services in {{city_display}}, {{state_abbrev}}. IICRC-certified technicians, eco-friendly solutions, satisfaction guaranteed.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://myshinyrhino.com/locations/{{state_slug}}/{{city_slug}}">
+  <meta property="og:image" content="https://myshinyrhino.com/logo.png">
+  <link rel="canonical" href="https://myshinyrhino.com/locations/{{state_slug}}/{{city_slug}}">
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/locations/locations.css">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="https://dgs.myshinyrhino.com/gtm.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','id=GTM-KKHWNM9N');</script>
+  <!-- End Google Tag Manager -->
+  {{schema_markup}}
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://dgs.myshinyrhino.com/ns.html?id=GTM-KKHWNM9N" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <a href="tel:4846301533" class="phone-link">(484) 630-1533</a>
+      <div class="top-bar-actions">
+        <a href="/quote" class="top-bar-btn top-bar-btn--res">Home Cleaning Quote</a>
+        <a href="/quote/commercial" class="top-bar-btn top-bar-btn--com">Business Cleaning Quote</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="logo">
+        <img src="/logo.png" alt="Shiny Rhino - Professional Carpet Cleaning Services" width="120" height="120" style="height:120px;width:auto;">
+      </a>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="has-dropdown">
+          <a href="/services/carpet">Services</a>
+          <div class="mega-dropdown">
+            <div class="mega-col">
+              <h4>Floor Cleaning</h4>
+              <a href="/services/carpet">Carpet Cleaning</a>
+              <a href="/services/rug">Area Rug Cleaning</a>
+              <a href="/services/tile">Tile & Grout Cleaning</a>
+              <a href="/services/hardwood">Hardwood Floor Cleaning</a>
+              <a href="/services/stone">Natural Stone Cleaning</a>
+            </div>
+            <div class="mega-col">
+              <h4>Upholstery</h4>
+              <a href="/services/upholstery">Furniture & Upholstery</a>
+              <a href="/services/vehicle">Car, Boat & RV</a>
+            </div>
+            <div class="mega-col">
+              <h4>Emergency</h4>
+              <a href="/services/water">Water Damage Restoration</a>
+            </div>
+          </div>
+        </li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/locations">Locations</a></li>
+        <li><a href="/quote" class="nav-cta">Get a Quote</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="loc-breadcrumb">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+            <meta itemprop="position" content="1">
+          </li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a itemprop="item" href="/locations"><span itemprop="name">Locations</span></a>
+            <meta itemprop="position" content="2">
+          </li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a itemprop="item" href="/locations/{{state_slug}}"><span itemprop="name">{{state_display}}</span></a>
+            <meta itemprop="position" content="3">
+          </li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name">{{city_display}}</span>
+            <meta itemprop="position" content="4">
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="loc-main">
+    <div class="container">
+      <div class="loc-layout">
+        <article class="loc-content">
+          {{generated_content}}
+
+          <!-- Location Links -->
+          <div class="loc-other-cities">
+            <h2>Other Locations in {{state_display}}</h2>
+            <div class="loc-city-grid">
+              {{location_links}}
+            </div>
+          </div>
+        </article>
+
+        <!-- Sidebar -->
+        <aside class="loc-sidebar">
+          <div class="loc-sidebar-card loc-sidebar-quote">
+            <h3>Get a Free Quote</h3>
+            <p>Professional carpet cleaning in {{city_display}} starting at $25/room.</p>
+            <a href="/quote" class="btn btn-primary" style="width:100%;text-align:center;">Get Your Quote</a>
+            <a href="tel:4846301533" class="btn btn-outline" style="width:100%;text-align:center;margin-top:10px;">Call (484) 630-1533</a>
+          </div>
+          <div class="loc-sidebar-card">
+            <h3>Why Shiny Rhino?</h3>
+            <ul class="loc-sidebar-list">
+              <li>IICRC-Certified Technicians</li>
+              <li>Truck-Mounted Equipment</li>
+              <li>Eco-Friendly Solutions</li>
+              <li>Transparent Pricing</li>
+              <li>100% Satisfaction Guarantee</li>
+            </ul>
+          </div>
+          <div class="loc-sidebar-card">
+            <h3>Services We Offer</h3>
+            <ul class="loc-sidebar-list">
+              <li><a href="/services/carpet">Carpet Cleaning</a></li>
+              <li><a href="/services/upholstery">Upholstery Cleaning</a></li>
+              <li><a href="/services/tile">Tile & Grout</a></li>
+              <li><a href="/services/hardwood">Hardwood Floors</a></li>
+              <li><a href="/services/rug">Area Rug Cleaning</a></li>
+              <li><a href="/services/water">Water Damage</a></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">
+            <img src="/logo.png" alt="Shiny Rhino" width="60" height="60" style="height:60px;width:auto;" loading="lazy">
+          </div>
+          <p class="footer-tagline">Professional cleaning services you can trust. Serving homes and businesses nationwide.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="/services/carpet">Carpet Cleaning</a></li>
+            <li><a href="/services/upholstery">Upholstery Cleaning</a></li>
+            <li><a href="/services/tile">Tile & Grout</a></li>
+            <li><a href="/services/hardwood">Hardwood Floors</a></li>
+            <li><a href="/services/vehicle">Car, Boat & RV</a></li>
+            <li><a href="/services/water">Water Damage</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>About</h4>
+          <ul>
+            <li><a href="/about">Our Story</a></li>
+            <li><a href="/faq">FAQs</a></li>
+            <li><a href="/blog">Blog</a></li>
+            <li><a href="/locations">Locations</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:4846301533">(484) 630-1533</a></li>
+            <li><a href="mailto:info@shinyrhino.com">info@shinyrhino.com</a></li>
+            <li>Mon-Fri: 7am - 8pm</li>
+            <li>Sat: 8am - 5pm</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Shiny Rhino. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile nav toggle -->
+  <script>
+  document.getElementById('mobileToggle').addEventListener('click', function() {
+    document.getElementById('navLinks').classList.toggle('active');
+    this.classList.toggle('active');
+  });
+  </script>
+</body>
+</html>
