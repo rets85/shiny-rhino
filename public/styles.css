@@ -417,6 +417,22 @@ button { cursor: pointer; font-family: inherit; }
 .calc-switch-link { position: absolute; right: 20px; top: 20px; color: var(--white); border-color: rgba(255,255,255,0.5); }
 .calc-switch-link:hover { background: var(--white); color: var(--primary-dark); }
 .calc-header--biz { background: linear-gradient(135deg, var(--dark), var(--dark-light)); }
+
+/* Zip Code Gate */
+.zip-gate { display: flex; justify-content: center; align-items: center; min-height: 50vh; padding: 40px 20px; }
+.zip-gate-card { background: var(--white); border-radius: var(--radius-lg, 12px); padding: 48px 40px; text-align: center; box-shadow: var(--shadow); max-width: 480px; width: 100%; }
+.zip-gate-card h2 { font-size: 1.5rem; color: var(--dark); margin-bottom: 8px; }
+.zip-gate-card p { color: var(--text-muted); margin-bottom: 24px; }
+.zip-gate-form { display: flex; gap: 12px; justify-content: center; }
+.zip-gate-form input { font-size: 1.1rem; padding: 12px 16px; border: 2px solid var(--gray-dark); border-radius: var(--radius); text-align: center; width: 200px; letter-spacing: 2px; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+.zip-gate-form input:focus { border-color: var(--primary); outline: none; }
+.zip-gate-error { color: #c0392b; font-size: 0.9rem; margin-top: 16px; }
+
+/* Zip Banner */
+.calc-zip-banner { background: var(--primary-lightest, #e8f5e9); color: var(--primary-dark); text-align: center; padding: 10px 20px; font-size: 0.95rem; }
+.calc-zip-change { background: none; border: none; color: var(--primary); text-decoration: underline; cursor: pointer; font-size: 0.9rem; margin-left: 12px; font-family: inherit; }
+.calc-zip-change:hover { color: var(--primary-dark); }
+
 .calc-layout { max-width: 1200px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
 .calc-main { }
 .calc-category { margin-bottom: 32px; }
@@ -712,6 +728,9 @@ button { cursor: pointer; font-family: inherit; }
   .calc-switch-link { position: static; display: inline-block; margin-top: 12px; }
   .calc-back { position: static; display: inline-block; margin-bottom: 8px; }
   .calc-layout { grid-template-columns: 1fr; }
+  .zip-gate-card { padding: 32px 20px; }
+  .zip-gate-form { flex-direction: column; align-items: center; }
+  .zip-gate-form input { width: 100%; max-width: 240px; }
 }
 
 /* Blog Images */

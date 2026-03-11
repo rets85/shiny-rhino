@@ -1009,6 +1009,19 @@
     "title": "Find Professional Carpet Cleaning Near You",
     "subtitle": "Enter your zip code to find your local Shiny Rhino team. We will connect you with certified technicians in your area who are ready to schedule your cleaning."
   },
+  "zipPricing": {
+    "baseMultiplier": 1.0,
+    "states": {
+      "PA": { "name": "Pennsylvania", "multiplier": 1.0 },
+      "NJ": { "name": "New Jersey", "multiplier": 1.1 },
+      "NY": { "name": "New York", "multiplier": 1.2 },
+      "CA": { "name": "California", "multiplier": 1.15 },
+      "FL": { "name": "Florida", "multiplier": 1.05 },
+      "TX": { "name": "Texas", "multiplier": 1.0 },
+      "IL": { "name": "Illinois", "multiplier": 1.1 },
+      "OH": { "name": "Ohio", "multiplier": 0.95 }
+    }
+  },
   "pricing": {
     "hiddenFee": {
       "label": "Service Fee",

@@ -5,6 +5,22 @@
 let CMS = {};
 let cmsEditMode = false;
 
+// Blog image map
+const BLOG_IMAGES = {
+  'how-to-remove-carpet-stains': '/images/blog-remove-stains.webp',
+  'how-often-professional-carpet-cleaning': '/images/blog-how-often.webp',
+  'steam-cleaning-vs-dry-cleaning-carpet': '/images/blog-steam-vs-dry.webp',
+  'get-rid-of-pet-odor-carpet': '/images/blog-pet-odor.webp',
+  'complete-guide-cleaning-tile-grout': '/images/blog-tile-grout.webp',
+  'hidden-spots-deep-cleaning': '/images/blog-hidden-spots.webp',
+  'year-round-deep-clean-schedule': '/images/blog-yearly-schedule.webp',
+  'rental-vs-professional-carpet-cleaning': '/images/blog-rental-vs-pro.webp',
+  'dirty-upholstery-air-quality': '/images/blog-upholstery-air.webp',
+  'daily-habits-carpet-care': '/images/blog-daily-habits.webp',
+  'pet-owners-guide-clean-floors': '/images/blog-pet-floors.webp',
+  'spring-carpet-deep-clean': '/images/blog-spring-clean.webp'
+};
+
 // SVG Icons (no emojis)
 const ICONS = {
   carpet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>',
@@ -147,6 +163,8 @@ const routes = {
 function navigate(path) {
   history.pushState(null, '', path);
   route();
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'virtualPageview', pagePath: path, pageTitle: document.title });
 }
 
 function route() {
@@ -243,21 +261,6 @@ function renderFAQBlock(questions) {
     </div>`).join('')}</div>`;
 }
 
-const BLOG_IMAGES = {
-  'how-to-remove-carpet-stains': 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=400&h=300&fit=crop',
-  'how-often-professional-carpet-cleaning': 'https://images.unsplash.com/photo-1576523163790-18a073e1fb7e?w=400&h=300&fit=crop',
-  'steam-cleaning-vs-dry-cleaning-carpet': 'https://images.unsplash.com/photo-1758273238947-7eb530b408e4?w=400&h=300&fit=crop',
-  'get-rid-of-pet-odor-carpet': 'https://images.unsplash.com/photo-1481391032119-d89fee407e44?w=400&h=300&fit=crop',
-  'complete-guide-cleaning-tile-grout': 'https://images.unsplash.com/photo-1721564130772-c9ee561ab87b?w=400&h=300&fit=crop',
-  'hidden-spots-deep-cleaning': 'https://images.unsplash.com/photo-1627037118196-2a3c22a22eea?w=400&h=300&fit=crop',
-  'year-round-deep-clean-schedule': 'https://images.unsplash.com/photo-1504115744733-85e946e6c323?w=400&h=300&fit=crop',
-  'rental-vs-professional-carpet-cleaning': 'https://images.unsplash.com/photo-1758523670634-df4e12ed7a26?w=400&h=300&fit=crop',
-  'dirty-upholstery-air-quality': 'https://images.unsplash.com/photo-1519494140681-8b17d830a3e9?w=400&h=300&fit=crop',
-  'daily-habits-carpet-care': 'https://images.unsplash.com/photo-1550514704-b5f6163b466a?w=400&h=300&fit=crop',
-  'pet-owners-guide-clean-floors': 'https://images.unsplash.com/photo-1722604828977-395d52c3cd23?w=400&h=300&fit=crop',
-  'spring-carpet-deep-clean': 'https://images.unsplash.com/photo-1444012236767-1b471c68781c?w=400&h=300&fit=crop'
-};
-
 // ---- Page Renderers ----
 
 function renderHome() {
@@ -269,14 +272,14 @@ function renderHome() {
   const blog = d.blog || {};
 
   const serviceList = [
-    { key: 'carpet', img: 'https://images.unsplash.com/photo-1576523163790-18a073e1fb7e?w=400&h=300&fit=crop' },
-    { key: 'upholstery', img: 'https://images.unsplash.com/photo-1519494140681-8b17d830a3e9?w=400&h=300&fit=crop' },
-    { key: 'tile', img: 'https://images.unsplash.com/photo-1721564130772-c9ee561ab87b?w=400&h=300&fit=crop' },
-    { key: 'hardwood', img: 'https://images.unsplash.com/photo-1722604828977-395d52c3cd23?w=400&h=300&fit=crop' },
-    { key: 'rug', img: 'https://images.unsplash.com/photo-1695197943218-be1bb14b6894?w=400&h=300&fit=crop' },
-    { key: 'stone', img: 'https://images.unsplash.com/photo-1762246433202-6e2cff902b1e?w=400&h=300&fit=crop' },
-    { key: 'vehicle', img: 'https://images.unsplash.com/photo-1748569747438-b6b5f18a46b9?w=400&h=300&fit=crop' },
-    { key: 'water', img: 'https://images.unsplash.com/photo-1632098725022-17e8c2916574?w=400&h=300&fit=crop' },
+    { key: 'carpet', img: '/images/svc-carpet.webp' },
+    { key: 'upholstery', img: '/images/svc-upholstery.webp' },
+    { key: 'tile', img: '/images/svc-tile.webp' },
+    { key: 'hardwood', img: '/images/svc-hardwood.webp' },
+    { key: 'rug', img: '/images/svc-rug.webp' },
+    { key: 'stone', img: '/images/svc-stone.webp' },
+    { key: 'vehicle', img: '/images/svc-vehicle.webp' },
+    { key: 'water', img: '/images/svc-water.webp' },
   ];
 
   document.getElementById('app').innerHTML = `
@@ -287,7 +290,7 @@ function renderHome() {
         <p class="hero-sub">${hero.subtitle || ''}</p>
         <div class="hero-buttons">
           <a href="/quote" class="btn btn-primary btn-lg" data-link>${hero.ctaPrimary || 'Get a Quote'}</a>
-          <a href="tel:4846301533" class="btn btn-outline btn-lg">${hero.ctaSecondary || 'Call Us'}</a>
+          <a href="tel:1-800-555-7446" class="btn btn-outline btn-lg">${hero.ctaSecondary || 'Call Us'}</a>
         </div>
       </div>
     </section>
@@ -417,7 +420,7 @@ function renderHome() {
         <div class="blog-grid">
           ${((CMS.blog || {}).posts || []).filter(p => p.status === 'published').slice(0, 3).map(post => `
             <div class="blog-card">
-              <img src="${BLOG_IMAGES[post.slug] || ''}" alt="${post.title}" class="blog-card-img" loading="lazy" width="400" height="300">
+              <div class="blog-card-image">${BLOG_IMAGES[post.slug] ? `<img src="${BLOG_IMAGES[post.slug]}" alt="${post.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">` : ICONS.article}</div>
               <div class="blog-card-body">
                 <div class="blog-card-category">${post.category || ''}</div>
                 <h3><a href="/blog/${post.slug}" data-link>${post.title}</a></h3>
@@ -453,6 +456,43 @@ function renderQuote(isCommercial) {
   // calcState: { catIdx_itemIdx: { qty, addons: { addonIdx: bool } } }
   window._calcState = window._calcState || {};
 
+  // Check sessionStorage for existing zip data
+  const savedZip = sessionStorage.getItem('zipData');
+  if (savedZip) {
+    try { window._zipData = JSON.parse(savedZip); } catch(e) { window._zipData = null; }
+  }
+
+  // If no zip data, show zip code entry gate
+  if (!window._zipData) {
+    document.getElementById('app').innerHTML = `
+      <div class="calc-page">
+        <div class="calc-header ${isCommercial ? 'calc-header--biz' : ''}">
+          <div class="calc-header-text">
+            ${isCommercial
+              ? `<h1>COMMERCIAL CLEANING SERVICES</h1><p>Custom pricing for offices, facilities & commercial spaces.</p>`
+              : `<h1>NO HASSLE PRICING & CLEANING</h1><p>Pick your items, see your price instantly. No surprises.</p>`
+            }
+          </div>
+        </div>
+        <div class="zip-gate">
+          <div class="zip-gate-card">
+            <h2>Enter Your Zip Code</h2>
+            <p>We'll show you accurate pricing for your area.</p>
+            <form onsubmit="calcZipLookup(event, ${isCommercial})" class="zip-gate-form">
+              <input type="text" id="zipGateInput" placeholder="Enter 5-digit ZIP code" maxlength="5" pattern="\\d{5}" required autofocus>
+              <button type="submit" class="btn btn-primary" id="zipGateBtn">Get Pricing</button>
+            </form>
+            <p id="zipGateError" class="zip-gate-error" style="display:none;"></p>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const mult = window._zipData.multiplier || 1;
+  const applyMult = (price) => Math.round(price * mult * 100) / 100;
+
   document.getElementById('app').innerHTML = `
     <div class="calc-page">
       <div class="calc-header ${isCommercial ? 'calc-header--biz' : ''}">
@@ -467,6 +507,10 @@ function renderQuote(isCommercial) {
           : `<a href="/quote/commercial" data-link class="btn btn-sm btn-outline calc-switch-link">Business Quote</a>`
         }
       </div>
+      <div class="calc-zip-banner">
+        Pricing for <strong>${window._zipData.stateName}</strong> (${window._zipData.zip})
+        <button onclick="calcChangeZip()" class="calc-zip-change">Change</button>
+      </div>
       <div class="calc-layout">
         <div class="calc-main">
           ${pricing.categories.map((cat, ci) => `
@@ -475,12 +519,13 @@ function renderQuote(isCommercial) {
               <div class="calc-items">
                 ${cat.items.map((item, ii) => {
                   const key = ci + '_' + ii;
+                  const displayPrice = applyMult(item.price);
                   return `
                   <div class="calc-item" data-key="${key}">
                     <div class="calc-item-info">
                       <div class="calc-item-name">${item.name}</div>
                       <div class="calc-item-desc">${item.description}</div>
-                      <div class="calc-item-price">$${item.price} / ${item.unit}</div>
+                      <div class="calc-item-price">$${displayPrice} / ${item.unit}</div>
                     </div>
                     <div class="calc-item-controls">
                       <button class="calc-qty-btn" onclick="calcChangeQty('${key}', -1)">-</button>
@@ -488,11 +533,13 @@ function renderQuote(isCommercial) {
                       <button class="calc-qty-btn" onclick="calcChangeQty('${key}', 1)">+</button>
                     </div>
                     <div class="calc-item-addons" id="calcAddons_${key}" style="display:none;">
-                      ${(item.addons || []).map((addon, ai) => `
+                      ${(item.addons || []).map((addon, ai) => {
+                        const addonDisplay = applyMult(addon.price);
+                        return `
                         <label class="calc-addon-label">
-                          <input type="checkbox" onchange="calcToggleAddon('${key}', ${ai})" /> ${addon.name} (+$${addon.price})
-                        </label>
-                      `).join('')}
+                          <input type="checkbox" onchange="calcToggleAddon('${key}', ${ai})" /> ${addon.name} (+$${addonDisplay})
+                        </label>`;
+                      }).join('')}
                     </div>
                   </div>`;
                 }).join('')}
@@ -529,7 +576,7 @@ function renderQuote(isCommercial) {
           </div>
           <div class="form-row">
             <input type="tel" id="calcPhone" placeholder="Phone Number" required>
-            <input type="text" id="calcZip" placeholder="ZIP Code" maxlength="5" required>
+            <input type="text" id="calcZip" placeholder="ZIP Code" maxlength="5" value="${window._zipData.zip || ''}" required>
           </div>
           <div class="form-row">
             <input type="date" id="calcDate">
@@ -547,9 +594,56 @@ function renderQuote(isCommercial) {
   `;
 }
 
+// Zip code lookup for quote calculator
+async function calcZipLookup(e, isCommercial) {
+  e.preventDefault();
+  const input = document.getElementById('zipGateInput');
+  const errorEl = document.getElementById('zipGateError');
+  const btn = document.getElementById('zipGateBtn');
+  const zip = input.value.trim();
+  if (!/^\d{5}$/.test(zip)) {
+    errorEl.textContent = 'Please enter a valid 5-digit ZIP code.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Looking up...';
+  try {
+    const res = await fetch('/api/zip-lookup/' + encodeURIComponent(zip));
+    const data = await res.json();
+    if (!data.valid) {
+      errorEl.textContent = data.error || 'ZIP code not recognized. Please try again.';
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Get Pricing';
+      return;
+    }
+    window._zipData = { zip, state: data.state, stateName: data.stateName, multiplier: data.multiplier };
+    sessionStorage.setItem('zipData', JSON.stringify(window._zipData));
+    renderQuote(isCommercial);
+    bindLinks();
+  } catch (err) {
+    errorEl.textContent = 'Something went wrong. Please try again.';
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Get Pricing';
+  }
+}
+
+function calcChangeZip() {
+  window._zipData = null;
+  sessionStorage.removeItem('zipData');
+  window._calcState = {};
+  route();
+}
+
 // Calculator logic
 function calcGetPricing() {
   return CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
+}
+
+function calcGetMultiplier() {
+  return (window._zipData && window._zipData.multiplier) ? window._zipData.multiplier : 1;
 }
 
 function calcChangeQty(key, delta) {
@@ -577,6 +671,7 @@ function calcToggleAddon(key, addonIdx) {
 function calcUpdateSummary() {
   const pricing = calcGetPricing();
   const state = window._calcState;
+  const mult = calcGetMultiplier();
   let lines = '';
   let total = 0;
   let hasItems = false;
@@ -587,14 +682,16 @@ function calcUpdateSummary() {
       const s = state[key];
       if (!s || s.qty === 0) return;
       hasItems = true;
-      const lineTotal = item.price * s.qty;
+      const adjPrice = Math.round(item.price * mult * 100) / 100;
+      const lineTotal = adjPrice * s.qty;
       total += lineTotal;
-      lines += `<div class="calc-summary-line"><span>${item.name} x${s.qty}</span><span>$${lineTotal}</span></div>`;
+      lines += `<div class="calc-summary-line"><span>${item.name} x${s.qty}</span><span>$${Math.round(lineTotal * 100) / 100}</span></div>`;
       (item.addons || []).forEach((addon, ai) => {
         if (s.addons[ai]) {
-          const addonTotal = addon.price * s.qty;
+          const adjAddon = Math.round(addon.price * mult * 100) / 100;
+          const addonTotal = adjAddon * s.qty;
           total += addonTotal;
-          lines += `<div class="calc-summary-line calc-summary-addon"><span>&nbsp;&nbsp;+ ${addon.name} x${s.qty}</span><span>$${addonTotal}</span></div>`;
+          lines += `<div class="calc-summary-line calc-summary-addon"><span>&nbsp;&nbsp;+ ${addon.name} x${s.qty}</span><span>$${Math.round(addonTotal * 100) / 100}</span></div>`;
         }
       });
     });
@@ -604,7 +701,7 @@ function calcUpdateSummary() {
   if (fee > 0) total += fee;
 
   document.getElementById('calcSummaryLines').innerHTML = hasItems ? lines : '<div class="calc-summary-empty">Add items to see your quote</div>';
-  document.getElementById('calcTotal').textContent = '$' + total;
+  document.getElementById('calcTotal').textContent = '$' + Math.round(total * 100) / 100;
 }
 
 function calcSchedule() {
@@ -617,22 +714,28 @@ function calcSchedule() {
 async function calcSubmit(e) {
   e.preventDefault();
   const pricing = calcGetPricing();
-  const state = window._calcState;
+  const calcState = window._calcState;
+  const mult = calcGetMultiplier();
   const items = [];
   pricing.categories.forEach((cat, ci) => {
     cat.items.forEach((item, ii) => {
       const key = ci + '_' + ii;
-      const s = state[key];
+      const s = calcState[key];
       if (!s || s.qty === 0) return;
+      const adjPrice = Math.round(item.price * mult * 100) / 100;
       const selectedAddons = (item.addons || []).filter((_, ai) => s.addons[ai]).map(a => a.name);
-      items.push({ name: item.name, qty: s.qty, price: item.price, addons: selectedAddons });
+      items.push({ name: item.name, qty: s.qty, price: adjPrice, addons: selectedAddons });
     });
   });
+  const zipInfo = window._zipData || {};
   const data = {
     name: document.getElementById('calcName').value,
     email: document.getElementById('calcEmail').value,
     phone: document.getElementById('calcPhone').value,
     zip: document.getElementById('calcZip').value,
+    state: zipInfo.state || '',
+    stateName: zipInfo.stateName || '',
+    multiplier: zipInfo.multiplier || 1,
     date: document.getElementById('calcDate').value,
     time: document.getElementById('calcTime').value,
     items,
@@ -889,7 +992,7 @@ function renderBlog() {
         <div class="blog-list">
           ${posts.map(post => `
             <article class="blog-list-item" data-category="${post.category || ''}">
-              <img src="${BLOG_IMAGES[post.slug] || ''}" alt="${post.title}" class="blog-card-img" loading="lazy" width="400" height="300" style="border-radius:8px;max-width:280px;height:auto;">
+              <div class="blog-list-image">${BLOG_IMAGES[post.slug] ? `<img src="${BLOG_IMAGES[post.slug]}" alt="${post.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : ICONS.article}</div>
               <div class="blog-list-body">
                 <div class="blog-list-meta">
                   <span class="blog-list-category">${post.category || ''}</span>
@@ -998,7 +1101,7 @@ function renderLocations() {
     <section class="page-content">
       <div class="container" style="text-align:center;">
         <h2>Serving Communities Nationwide</h2>
-        <p style="max-width:600px;margin:0 auto;">Shiny Rhino has locations across the country, ready to serve your home or business. Enter your zip code above or call <strong>(484) 630-1533</strong> to find your nearest location.</p>
+        <p style="max-width:600px;margin:0 auto;">Shiny Rhino has locations across the country, ready to serve your home or business. Enter your zip code above or call <strong>1-800-555-RHINO</strong> to find your nearest location.</p>
       </div>
     </section>
   `;
@@ -1051,7 +1154,7 @@ function renderContact() {
               <h3>Get in Touch</h3>
               <div class="contact-info-item">
                 <div class="contact-info-icon">${ICONS.phone}</div>
-                <div><h4>Phone</h4><p>${(d.info || {}).phone || '(484) 630-1533'}</p></div>
+                <div><h4>Phone</h4><p>${(d.info || {}).phone || '1-800-555-RHINO'}</p></div>
               </div>
               <div class="contact-info-item">
                 <div class="contact-info-icon">${ICONS.mail}</div>
@@ -1250,6 +1353,9 @@ function renderAdmin() {
           <button class="adm-nav-item ${adminActiveTab === 'pricing' ? 'active' : ''}" onclick="adminSwitchTab('pricing')">
             <span class="adm-nav-icon">&#128176;</span> Pricing
           </button>
+          <button class="adm-nav-item ${adminActiveTab === 'zipPricing' ? 'active' : ''}" onclick="adminSwitchTab('zipPricing')">
+            <span class="adm-nav-icon">&#128205;</span> Zip Pricing
+          </button>
           <div class="adm-nav-divider">Pages</div>
           ${pages.map(p => `
             <button class="adm-nav-item ${adminActiveTab === p ? 'active' : ''}" onclick="adminSwitchTab('${p}')">
@@ -1293,6 +1399,7 @@ function adminSwitchTab(tab) {
   document.querySelectorAll('.adm-nav-item').forEach(b => {
     const text = b.textContent.trim();
     if (tab === 'pricing' && text === 'Pricing') b.classList.add('active');
+    else if (tab === 'zipPricing' && text === 'Zip Pricing') b.classList.add('active');
     else if (tab.startsWith('svc_') && (CMS.services[tab.replace('svc_','')]?.title || '').trim() === text.trim()) b.classList.add('active');
     else if (ADMIN_PAGE_CONFIG[tab] && ADMIN_PAGE_CONFIG[tab].label === text) b.classList.add('active');
   });
@@ -1316,6 +1423,48 @@ function adminRenderTab() {
     const svc = (CMS.services || {})[svcKey] || {};
     if (titleEl) titleEl.textContent = svc.title || svcKey;
     container.innerHTML = adminRenderServiceEditor(svcKey, svc);
+    return;
+  }
+
+  if (adminActiveTab === 'zipPricing') {
+    if (titleEl) titleEl.textContent = 'Zip Code Pricing';
+    const zp = CMS.zipPricing || { baseMultiplier: 1.0, states: {} };
+    const stateEntries = Object.entries(zp.states || {});
+    container.innerHTML = `
+      <div class="adm-card">
+        <div class="adm-card-header">
+          <h2>Base Multiplier</h2>
+          <span class="adm-card-hint">Applied when a customer's state has no specific multiplier configured.</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-input-group" style="max-width:200px;">
+            <label>Base Multiplier</label>
+            <input type="number" id="adminZipBaseMult" value="${zp.baseMultiplier}" min="0.1" step="0.01" oninput="adminMarkUnsaved()">
+          </div>
+        </div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-card-header">
+          <h2>State Multipliers <span class="adm-count">${stateEntries.length}</span></h2>
+          <button class="btn btn-primary btn-sm" onclick="adminAddZipState()">+ Add State</button>
+        </div>
+        <div class="adm-card-body" style="padding:0;">
+          <table class="adm-blog-table">
+            <thead><tr><th>State Code</th><th>State Name</th><th>Multiplier</th><th></th></tr></thead>
+            <tbody id="adminZipStatesBody">
+              ${stateEntries.map(([code, s]) => `
+                <tr>
+                  <td><input type="text" value="${code}" maxlength="2" style="width:60px;text-transform:uppercase;" onchange="adminRenameZipState('${code}', this.value)" oninput="adminMarkUnsaved()"></td>
+                  <td><input type="text" value="${(s.name || '').replace(/"/g, '&quot;')}" onchange="CMS.zipPricing.states['${code}'].name=this.value; adminMarkUnsaved()"></td>
+                  <td><input type="number" value="${s.multiplier}" min="0.1" step="0.01" style="width:100px;" onchange="CMS.zipPricing.states['${code}'].multiplier=parseFloat(this.value)||1; adminMarkUnsaved()"></td>
+                  <td><button class="adm-icon-btn adm-icon-btn--danger" onclick="adminRemoveZipState('${code}')" title="Remove">&#10005;</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
     return;
   }
 
@@ -1877,9 +2026,44 @@ function adminAddAddon(ci, ii) {
   adminRenderCategories();
 }
 
+// Zip Pricing admin helpers
+function adminAddZipState() {
+  if (!CMS.zipPricing) CMS.zipPricing = { baseMultiplier: 1.0, states: {} };
+  const code = prompt('Enter 2-letter state code (e.g. CA):');
+  if (!code) return;
+  const upper = code.toUpperCase().trim();
+  if (!/^[A-Z]{2}$/.test(upper)) { showToast('Invalid state code.'); return; }
+  if (CMS.zipPricing.states[upper]) { showToast('State already exists.'); return; }
+  CMS.zipPricing.states[upper] = { name: upper, multiplier: 1.0 };
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
+function adminRemoveZipState(code) {
+  if (!CMS.zipPricing?.states[code]) return;
+  delete CMS.zipPricing.states[code];
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
+function adminRenameZipState(oldCode, newCode) {
+  newCode = newCode.toUpperCase().trim();
+  if (!/^[A-Z]{2}$/.test(newCode)) { showToast('Invalid state code.'); return; }
+  if (oldCode === newCode) return;
+  if (CMS.zipPricing.states[newCode]) { showToast('State code already exists.'); return; }
+  CMS.zipPricing.states[newCode] = CMS.zipPricing.states[oldCode];
+  delete CMS.zipPricing.states[oldCode];
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
 async function adminSave() {
-  // Gather hidden fee from inputs if on pricing tab
-  if (adminActiveTab === 'pricing') {
+  // Gather data from current tab
+  if (adminActiveTab === 'zipPricing') {
+    if (!CMS.zipPricing) CMS.zipPricing = { baseMultiplier: 1.0, states: {} };
+    CMS.zipPricing.baseMultiplier = parseFloat(document.getElementById('adminZipBaseMult')?.value) || 1.0;
+    await saveCMS('zipPricing', CMS.zipPricing);
+  } else if (adminActiveTab === 'pricing') {
     CMS.pricing.hiddenFee = {
       label: document.getElementById('adminFeeLabel')?.value || 'Service Fee',
       amount: parseFloat(document.getElementById('adminFeeAmount')?.value) || 0

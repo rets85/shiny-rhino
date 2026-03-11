@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const DATA_FILE = path.join(__dirname, 'cms-data.json');
+const ZIP_RANGES = JSON.parse(fs.readFileSync(path.join(__dirname, 'zip-ranges.json'), 'utf-8'));
 const CRM_WEBHOOK = 'https://crm.firstmanventures.com/api/webhooks/leads/rhino';
 const CUSTOM_WEBHOOK = process.env.LEAD_WEBHOOK_URL || 'https://hook.eu2.make.com/qpjh4zn8zvjslc2kog3yu17ctv9shw9g';
 
@@ -151,6 +152,26 @@ app.post('/api/newsletter', (req, res) => {
   subs.push({ email: req.body.email, timestamp: new Date().toISOString() });
   fs.writeFileSync(nlFile, JSON.stringify(subs, null, 2));
   res.json({ success: true });
+});
+
+// --- Zip Code Lookup ---
+app.get('/api/zip-lookup/:zip', (req, res) => {
+  const zip = req.params.zip;
+  if (!/^\d{5}$/.test(zip)) {
+    return res.json({ valid: false, error: 'Invalid zip code' });
+  }
+  const prefix = parseInt(zip.substring(0, 2), 10);
+  const match = ZIP_RANGES.ranges.find(r => prefix >= r.min && prefix <= r.max);
+  if (!match) {
+    return res.json({ valid: false, error: 'Zip code not recognized' });
+  }
+  const stateCode = match.state;
+  const stateName = ZIP_RANGES.stateNames[stateCode] || stateCode;
+  const data = loadData();
+  const zipPricing = data.zipPricing || { baseMultiplier: 1.0, states: {} };
+  const stateConfig = zipPricing.states[stateCode];
+  const multiplier = stateConfig ? stateConfig.multiplier : zipPricing.baseMultiplier;
+  res.json({ valid: true, state: stateCode, stateName, multiplier });
 });
 
 // --- SEO Routes ---
