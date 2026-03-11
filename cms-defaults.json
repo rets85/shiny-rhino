@@ -801,6 +801,23 @@
       "Mike Johnson",
       "Sarah Chen"
     ],
+    "authorBios": {
+      "Mike Johnson": {
+        "title": "Senior Cleaning Specialist",
+        "bio": "Mike brings over 15 years of hands-on experience in residential and commercial carpet restoration. IICRC-certified in carpet cleaning, upholstery care, and water damage restoration, he has personally overseen more than 20,000 cleaning projects. When he is not solving tough stain challenges, Mike trains our technician teams on the latest extraction and fiber-care techniques.",
+        "avatar": ""
+      },
+      "Sarah Chen": {
+        "title": "Indoor Air Quality Consultant",
+        "bio": "Sarah holds certifications in indoor environmental quality and has spent a decade studying how flooring and upholstery impact the air families breathe at home. She translates complex science into practical cleaning advice that homeowners can act on immediately. Her articles have helped thousands of readers create healthier living spaces through smarter maintenance habits.",
+        "avatar": ""
+      },
+      "Shiny Rhino Team": {
+        "title": "Professional Cleaning Experts",
+        "bio": "The Shiny Rhino editorial team combines decades of field experience across carpet care, tile restoration, upholstery cleaning, and water damage recovery. Every article we publish is reviewed by our IICRC-certified technicians to ensure the advice is accurate, actionable, and based on real-world results from thousands of homes served.",
+        "avatar": ""
+      }
+    },
     "posts": [
       {
         "title": "How to Remove Carpet Stains: 9 Common Stains and What Actually Works",

@@ -1018,6 +1018,30 @@ function filterBlog(btn, cat) {
   });
 }
 
+function renderAuthorBox(authorName, blogData) {
+  if (!authorName) return '';
+  const bios = blogData.authorBios || {};
+  const author = bios[authorName];
+  if (!author) return '';
+  const initials = authorName.split(' ').map(w => w[0]).join('').toUpperCase();
+  const avatarHtml = author.avatar
+    ? `<img src="${author.avatar}" alt="${authorName}" class="author-box-avatar">`
+    : `<div class="author-box-avatar author-box-initials">${initials}</div>`;
+  return `
+    <div class="author-box">
+      <div class="author-box-left">
+        ${avatarHtml}
+      </div>
+      <div class="author-box-right">
+        <div class="author-box-label">Written by</div>
+        <div class="author-box-name">${authorName}</div>
+        <div class="author-box-title">${author.title || ''}</div>
+        <p class="author-box-bio">${author.bio || ''}</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderBlogPost(slug) {
   const d = CMS.blog || {};
   const post = (d.posts || []).find(p => p.slug === slug);
@@ -1038,6 +1062,7 @@ function renderBlogPost(slug) {
           </div>
         </header>
         <div class="blog-post-content">${post.content || '<p>' + post.excerpt + '</p>'}</div>
+        ${renderAuthorBox(post.author, d)}
         <footer class="blog-post-footer">
           <a href="/blog" class="btn btn-outline-dark" data-link>Back to Blog</a>
           <a href="/quote" class="btn btn-primary" data-link>Get a Free Quote</a>
