@@ -1428,13 +1428,15 @@ function adminRenderTab() {
 
   if (adminActiveTab === 'zipPricing') {
     if (titleEl) titleEl.textContent = 'Zip Code Pricing';
-    const zp = CMS.zipPricing || { baseMultiplier: 1.0, states: {} };
+    const zp = CMS.zipPricing || { baseMultiplier: 1.0, states: {}, zipOverrides: {} };
+    if (!zp.zipOverrides) zp.zipOverrides = {};
     const stateEntries = Object.entries(zp.states || {});
+    const zipEntries = Object.entries(zp.zipOverrides || {});
     container.innerHTML = `
       <div class="adm-card">
         <div class="adm-card-header">
           <h2>Base Multiplier</h2>
-          <span class="adm-card-hint">Applied when a customer's state has no specific multiplier configured.</span>
+          <span class="adm-card-hint">Default pricing multiplier. Used when no state or zip-specific multiplier is set.</span>
         </div>
         <div class="adm-card-body">
           <div class="adm-input-group" style="max-width:200px;">
@@ -1458,6 +1460,28 @@ function adminRenderTab() {
                   <td><input type="text" value="${(s.name || '').replace(/"/g, '&quot;')}" onchange="CMS.zipPricing.states['${code}'].name=this.value; adminMarkUnsaved()"></td>
                   <td><input type="number" value="${s.multiplier}" min="0.1" step="0.01" style="width:100px;" onchange="CMS.zipPricing.states['${code}'].multiplier=parseFloat(this.value)||1; adminMarkUnsaved()"></td>
                   <td><button class="adm-icon-btn adm-icon-btn--danger" onclick="adminRemoveZipState('${code}')" title="Remove">&#10005;</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-card-header">
+          <h2>Zip Code Overrides <span class="adm-count">${zipEntries.length}</span></h2>
+          <span class="adm-card-hint" style="flex:1;">Override pricing for specific zip codes. These take priority over state multipliers.</span>
+          <button class="btn btn-primary btn-sm" onclick="adminAddZipOverride()">+ Add Zip Code</button>
+        </div>
+        <div class="adm-card-body" style="padding:0;">
+          <table class="adm-blog-table">
+            <thead><tr><th>Zip Code</th><th>Label</th><th>Multiplier</th><th></th></tr></thead>
+            <tbody id="adminZipOverridesBody">
+              ${zipEntries.map(([zip, z]) => `
+                <tr>
+                  <td><input type="text" value="${zip}" maxlength="5" style="width:80px;" onchange="adminRenameZipOverride('${zip}', this.value)" oninput="adminMarkUnsaved()"></td>
+                  <td><input type="text" value="${(z.label || '').replace(/"/g, '&quot;')}" onchange="CMS.zipPricing.zipOverrides['${zip}'].label=this.value; adminMarkUnsaved()"></td>
+                  <td><input type="number" value="${z.multiplier}" min="0.1" step="0.01" style="width:100px;" onchange="CMS.zipPricing.zipOverrides['${zip}'].multiplier=parseFloat(this.value)||1; adminMarkUnsaved()"></td>
+                  <td><button class="adm-icon-btn adm-icon-btn--danger" onclick="adminRemoveZipOverride('${zip}')" title="Remove">&#10005;</button></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -2057,10 +2081,42 @@ function adminRenameZipState(oldCode, newCode) {
   adminRenderTab();
 }
 
+function adminAddZipOverride() {
+  if (!CMS.zipPricing) CMS.zipPricing = { baseMultiplier: 1.0, states: {}, zipOverrides: {} };
+  if (!CMS.zipPricing.zipOverrides) CMS.zipPricing.zipOverrides = {};
+  const zip = prompt('Enter 5-digit zip code:');
+  if (!zip) return;
+  const trimmed = zip.trim();
+  if (!/^\d{5}$/.test(trimmed)) { showToast('Invalid zip code. Must be 5 digits.'); return; }
+  if (CMS.zipPricing.zipOverrides[trimmed]) { showToast('Zip code already exists.'); return; }
+  CMS.zipPricing.zipOverrides[trimmed] = { label: '', multiplier: 1.0 };
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
+function adminRemoveZipOverride(zip) {
+  if (!CMS.zipPricing?.zipOverrides?.[zip]) return;
+  delete CMS.zipPricing.zipOverrides[zip];
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
+function adminRenameZipOverride(oldZip, newZip) {
+  newZip = newZip.trim();
+  if (!/^\d{5}$/.test(newZip)) { showToast('Invalid zip code. Must be 5 digits.'); return; }
+  if (oldZip === newZip) return;
+  if (CMS.zipPricing.zipOverrides[newZip]) { showToast('Zip code already exists.'); return; }
+  CMS.zipPricing.zipOverrides[newZip] = CMS.zipPricing.zipOverrides[oldZip];
+  delete CMS.zipPricing.zipOverrides[oldZip];
+  adminMarkUnsaved();
+  adminRenderTab();
+}
+
 async function adminSave() {
   // Gather data from current tab
   if (adminActiveTab === 'zipPricing') {
-    if (!CMS.zipPricing) CMS.zipPricing = { baseMultiplier: 1.0, states: {} };
+    if (!CMS.zipPricing) CMS.zipPricing = { baseMultiplier: 1.0, states: {}, zipOverrides: {} };
+    if (!CMS.zipPricing.zipOverrides) CMS.zipPricing.zipOverrides = {};
     CMS.zipPricing.baseMultiplier = parseFloat(document.getElementById('adminZipBaseMult')?.value) || 1.0;
     await saveCMS('zipPricing', CMS.zipPricing);
   } else if (adminActiveTab === 'pricing') {

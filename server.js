@@ -168,10 +168,22 @@ app.get('/api/zip-lookup/:zip', (req, res) => {
   const stateCode = match.state;
   const stateName = ZIP_RANGES.stateNames[stateCode] || stateCode;
   const data = loadData();
-  const zipPricing = data.zipPricing || { baseMultiplier: 1.0, states: {} };
+  const zipPricing = data.zipPricing || { baseMultiplier: 1.0, states: {}, zipOverrides: {} };
+  // Priority: zip override > state multiplier > base multiplier
+  const zipOverride = (zipPricing.zipOverrides || {})[zip];
   const stateConfig = zipPricing.states[stateCode];
-  const multiplier = stateConfig ? stateConfig.multiplier : zipPricing.baseMultiplier;
-  res.json({ valid: true, state: stateCode, stateName, multiplier });
+  let multiplier, source;
+  if (zipOverride) {
+    multiplier = zipOverride.multiplier;
+    source = 'zip';
+  } else if (stateConfig) {
+    multiplier = stateConfig.multiplier;
+    source = 'state';
+  } else {
+    multiplier = zipPricing.baseMultiplier;
+    source = 'base';
+  }
+  res.json({ valid: true, state: stateCode, stateName, multiplier, source });
 });
 
 // --- SEO Routes ---
