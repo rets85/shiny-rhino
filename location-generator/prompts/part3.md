@@ -101,13 +101,13 @@ Build this dynamically from ALL the FAQ questions above. Use this exact format:
 }
 </script>
 
-**Schema 3 - Service:**
+**Schema 3 - Service (list each service we offer with its own Offer):**
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
-  "name": "Professional Carpet Cleaning in {city}",
-  "description": "IICRC-certified carpet cleaning, upholstery cleaning, tile and grout cleaning services in {city}, {state_abbrev}",
+  "name": "Professional Cleaning Services in {city}",
+  "description": "IICRC-certified carpet, upholstery, tile, hardwood, area rug, natural stone, water damage, and vehicle interior cleaning in {city}, {state_abbrev}",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Shiny Rhino",
@@ -121,12 +121,25 @@ Build this dynamically from ALL the FAQ questions above. Use this exact format:
       "name": "{state}"
     }
   },
-  "serviceType": "Carpet Cleaning",
-  "offers": {
-    "@type": "AggregateOffer",
-    "lowPrice": "25",
-    "highPrice": "300",
-    "priceCurrency": "USD"
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Cleaning Services in {city}",
+    "itemListElement": [
+      {"@type": "OfferCatalog", "name": "Floor Cleaning", "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Carpet Cleaning", "url": "https://myshinyrhino.com/services/carpet"}, "priceSpecification": {"@type": "PriceSpecification", "price": "25", "priceCurrency": "USD", "unitText": "per room", "minPrice": "25", "maxPrice": "75"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Tile & Grout Cleaning", "url": "https://myshinyrhino.com/services/tile"}, "priceSpecification": {"@type": "PriceSpecification", "price": "1", "priceCurrency": "USD", "unitText": "per sq ft", "minPrice": "1", "maxPrice": "3"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Hardwood Floor Cleaning", "url": "https://myshinyrhino.com/services/hardwood"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Natural Stone Cleaning", "url": "https://myshinyrhino.com/services/stone"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Area Rug Cleaning", "url": "https://myshinyrhino.com/services/rug"}, "priceSpecification": {"@type": "PriceSpecification", "price": "50", "priceCurrency": "USD", "minPrice": "50", "maxPrice": "150"}}
+      ]},
+      {"@type": "OfferCatalog", "name": "Upholstery", "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Furniture & Upholstery Cleaning", "url": "https://myshinyrhino.com/services/upholstery"}, "priceSpecification": {"@type": "PriceSpecification", "price": "100", "priceCurrency": "USD", "minPrice": "100", "maxPrice": "200"}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Car, Boat & RV Interior Cleaning", "url": "https://myshinyrhino.com/services/vehicle"}}
+      ]},
+      {"@type": "OfferCatalog", "name": "Emergency", "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Water Damage Restoration", "url": "https://myshinyrhino.com/services/water"}}
+      ]}
+    ]
   }
 }
 </script>
