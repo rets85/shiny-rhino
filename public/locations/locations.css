@@ -20,9 +20,9 @@
 .loc-content h2 { font-size: 1.5rem; color: var(--dark); margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
 .loc-content h3 { font-size: 1.15rem; color: var(--dark-light); margin: 28px 0 10px; }
 .loc-content p { margin-bottom: 16px; line-height: 1.7; }
-.loc-content ul { padding-left: 24px; margin-bottom: 16px; list-style: disc; }
-.loc-content ol { padding-left: 24px; margin-bottom: 16px; list-style: decimal; }
-.loc-content li { margin-bottom: 8px; line-height: 1.6; }
+.loc-content ul { padding-left: 24px; margin-bottom: 16px; list-style: disc !important; }
+.loc-content ol { padding-left: 24px; margin-bottom: 16px; list-style: decimal !important; }
+.loc-content li { margin-bottom: 8px; line-height: 1.6; list-style-type: inherit !important; display: list-item !important; }
 .loc-content li::marker { color: var(--primary); }
 .loc-content a { color: var(--primary-dark); font-weight: 600; }
 .loc-content a:hover { color: var(--primary); text-decoration: underline; }
@@ -47,9 +47,9 @@
 /* CTA buttons */
 .loc-cta-buttons { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
 .loc-cta-buttons .btn { padding: 14px 32px; font-size: 1.05rem; }
-.loc-cta-buttons .btn-primary { background: var(--accent); color: var(--white); }
-.loc-cta-buttons .btn-outline { color: var(--primary-dark); border: 2px solid var(--primary-dark); }
-.loc-cta-buttons .btn-outline:hover { background: var(--primary-dark); color: var(--white); }
+.loc-cta-buttons .btn.btn-primary { background: var(--accent) !important; color: var(--white) !important; }
+.loc-cta-buttons .btn.btn-outline { background: transparent !important; color: var(--primary-dark) !important; border: 2px solid var(--primary-dark) !important; }
+.loc-cta-buttons .btn.btn-outline:hover { background: var(--primary-dark) !important; color: var(--white) !important; }
 
 /* Sidebar */
 .loc-sidebar { position: sticky; top: 100px; align-self: start; }
@@ -57,8 +57,8 @@
 .loc-sidebar-card h3 { font-size: 1.1rem; color: var(--dark); margin-bottom: 12px; }
 .loc-sidebar-card p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 16px; }
 .loc-sidebar-quote { background: linear-gradient(135deg, var(--primary-lightest) 0%, var(--white) 100%); border-color: var(--primary-light); }
-.loc-sidebar-quote .btn-outline { color: var(--primary-dark); border-color: var(--primary-dark); }
-.loc-sidebar-quote .btn-outline:hover { background: var(--primary-dark); color: var(--white); }
+.loc-sidebar-quote .btn.btn-outline { background: transparent !important; color: var(--primary-dark) !important; border: 2px solid var(--primary-dark) !important; }
+.loc-sidebar-quote .btn.btn-outline:hover { background: var(--primary-dark) !important; color: var(--white) !important; }
 .loc-sidebar-list { list-style: none; padding: 0; }
 .loc-sidebar-list li { padding: 8px 0; border-bottom: 1px solid var(--gray-light); font-size: 0.9rem; color: var(--text); }
 .loc-sidebar-list li:last-child { border-bottom: none; }
