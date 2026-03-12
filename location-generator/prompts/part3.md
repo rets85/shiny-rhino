@@ -41,8 +41,9 @@ Plus 2 questions specific to {city} or {state} (local climate, common issues, et
 </div>
 
 ### 4. Schema Markup (output at the very end, after all visible content)
-Output ONLY a LocalBusiness schema. Do NOT output FAQPage schema (it is restricted by Google).
+Output FOUR separate script blocks with full structured data:
 
+**Schema 1 - LocalBusiness:**
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -62,7 +63,91 @@ Output ONLY a LocalBusiness schema. Do NOT output FAQPage schema (it is restrict
     "name": "{city}, {state}"
   },
   "priceRange": "$$",
-  "image": "https://myshinyrhino.com/logo.png"
+  "image": "https://myshinyrhino.com/logo.png",
+  "openingHoursSpecification": [
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "07:00", "closes": "20:00"},
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "08:00", "closes": "17:00"}
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Cleaning Services",
+    "itemListElement": [
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Carpet Cleaning", "url": "https://myshinyrhino.com/services/carpet"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Upholstery Cleaning", "url": "https://myshinyrhino.com/services/upholstery"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Tile & Grout Cleaning", "url": "https://myshinyrhino.com/services/tile"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Hardwood Floor Cleaning", "url": "https://myshinyrhino.com/services/hardwood"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Water Damage Restoration", "url": "https://myshinyrhino.com/services/water"}}
+    ]
+  }
+}
+</script>
+
+**Schema 2 - FAQPage:**
+Build this dynamically from ALL the FAQ questions above. Use this exact format:
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Question text here?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Answer text here."
+      }
+    }
+  ]
+}
+</script>
+
+**Schema 3 - Service:**
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Professional Carpet Cleaning in {city}",
+  "description": "IICRC-certified carpet cleaning, upholstery cleaning, tile and grout cleaning services in {city}, {state_abbrev}",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Shiny Rhino",
+    "url": "https://myshinyrhino.com"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "{city}",
+    "containedInPlace": {
+      "@type": "State",
+      "name": "{state}"
+    }
+  },
+  "serviceType": "Carpet Cleaning",
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "25",
+    "highPrice": "300",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+**Schema 4 - WebPage:**
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Carpet Cleaning in {city}, {state_abbrev}",
+  "description": "Professional carpet cleaning services in {city}, {state_abbrev}. Hot water extraction, upholstery cleaning, tile and grout.",
+  "url": "https://myshinyrhino.com/locations/{state_slug}/{city_slug}",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Shiny Rhino",
+    "url": "https://myshinyrhino.com"
+  },
+  "about": {
+    "@type": "City",
+    "name": "{city}, {state}"
+  }
 }
 </script>
 
@@ -79,5 +164,6 @@ Output ONLY a LocalBusiness schema. Do NOT output FAQPage schema (it is restrict
 - Pure HTML only. No markdown. No code fences.
 - No em dashes or en dashes. Use regular hyphens only.
 - Schema JSON must be valid - escape all quotes properly
-- Do NOT output FAQPage schema - Google restricted it to government/health sites
+- Include ALL FOUR schema blocks (LocalBusiness, FAQPage, Service, WebPage)
+- FAQPage schema must include EVERY FAQ question/answer from the content above
 - Do NOT wrap output in ```html``` or any code blocks
