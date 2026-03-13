@@ -17,6 +17,45 @@ const ORDERS_DIR = path.join(__dirname, 'data');
 const ORDERS_FILE = path.join(ORDERS_DIR, 'orders.json');
 if (!fs.existsSync(ORDERS_DIR)) fs.mkdirSync(ORDERS_DIR, { recursive: true });
 
+// Stripe webhook needs raw body for signature verification - must be before express.json()
+app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  if (!stripe) return res.status(500).json({ error: 'Stripe not configured' });
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    if (endpointSecret && sig) {
+      event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } else {
+      event = JSON.parse(req.body);
+    }
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ error: 'Webhook signature verification failed' });
+  }
+
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object;
+    console.log(`Payment confirmed: ${pi.id} - $${(pi.amount / 100).toFixed(2)}`);
+
+    // Forward to CRM as a confirmed order
+    forwardLead({
+      source: 'stripe_webhook',
+      type: 'confirmed_payment',
+      paymentIntentId: pi.id,
+      amount: (pi.amount / 100).toFixed(2),
+      currency: pi.currency,
+      customerEmail: pi.receipt_email || pi.metadata?.email || '',
+      customerName: pi.metadata?.name || '',
+      description: pi.description || '',
+      metadata: pi.metadata || {}
+    });
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { index: false, redirect: false }));
 
@@ -176,7 +215,8 @@ app.post('/api/create-payment-intent', async (req, res) => {
       amount: Math.round(amount * 100), // convert dollars to cents
       currency: 'usd',
       description: description || 'Shiny Rhino Order',
-      metadata: metadata || {}
+      metadata: metadata || {},
+      receipt_email: metadata?.email || undefined
     });
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
