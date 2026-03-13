@@ -1,0 +1,21 @@
+{
+  "completed": {
+    "california": [
+      "los-angeles"
+    ],
+    "florida": [
+      "miami"
+    ],
+    "colorado": [
+      "denver"
+    ],
+    "texas": [
+      "austin"
+    ],
+    "new-york": [
+      "brooklyn"
+    ]
+  },
+  "failed": {},
+  "last_updated": "2026-03-11T20:55:09.808793"
+}

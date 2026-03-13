@@ -11,6 +11,12 @@ const ZIP_RANGES = JSON.parse(fs.readFileSync(path.join(__dirname, 'zip-ranges.j
 const CRM_WEBHOOK = 'https://crm.firstmanventures.com/api/webhooks/leads/rhino';
 const CUSTOM_WEBHOOK = process.env.LEAD_WEBHOOK_URL || 'https://hook.eu2.make.com/qpjh4zn8zvjslc2kog3yu17ctv9shw9g';
 
+// Stripe setup (keys via env vars only)
+const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
+const ORDERS_DIR = path.join(__dirname, 'data');
+const ORDERS_FILE = path.join(ORDERS_DIR, 'orders.json');
+if (!fs.existsSync(ORDERS_DIR)) fs.mkdirSync(ORDERS_DIR, { recursive: true });
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { index: false, redirect: false }));
 
@@ -152,6 +158,50 @@ app.post('/api/newsletter', (req, res) => {
   subs.push({ email: req.body.email, timestamp: new Date().toISOString() });
   fs.writeFileSync(nlFile, JSON.stringify(subs, null, 2));
   res.json({ success: true });
+});
+
+// --- Stripe Checkout ---
+app.get('/api/stripe-key', (req, res) => {
+  const key = process.env.STRIPE_PUBLISHABLE_KEY;
+  if (!key) return res.status(500).json({ error: 'Stripe not configured' });
+  res.json({ publishableKey: key });
+});
+
+app.post('/api/create-payment-intent', async (req, res) => {
+  if (!stripe) return res.status(500).json({ error: 'Stripe not configured' });
+  try {
+    const { amount, description, metadata } = req.body;
+    if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // convert dollars to cents
+      currency: 'usd',
+      description: description || 'Shiny Rhino Order',
+      metadata: metadata || {}
+    });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    console.error('Stripe error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/orders', (req, res) => {
+  let orders = [];
+  if (fs.existsSync(ORDERS_FILE)) {
+    try { orders = JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf-8')); } catch (e) { orders = []; }
+  }
+  const order = {
+    id: 'ORD-' + Date.now(),
+    ...req.body,
+    timestamp: new Date().toISOString()
+  };
+  orders.push(order);
+  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+
+  // Forward as lead
+  forwardLead(req.body);
+
+  res.json({ success: true, orderId: order.id });
 });
 
 // --- Zip Code Lookup ---

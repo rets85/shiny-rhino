@@ -709,10 +709,33 @@ function calcProceedToCheckout() {
   const state = window._calcState;
   const hasItems = Object.values(state).some(s => s.qty > 0);
   if (!hasItems) { showToast('Please add at least one item first.'); return; }
-  // Save calc state to sessionStorage for checkout page
   sessionStorage.setItem('checkoutData', JSON.stringify({
+    type: 'quote',
     calcState: state,
     zipData: window._zipData
+  }));
+  navigate('/checkout');
+}
+
+function productProceedToCheckout() {
+  const d = CMS.products || {};
+  const items = d.items || [];
+  const cartItems = [];
+  let total = 0;
+  Object.entries(window._cart).forEach(([idx, s]) => {
+    if (s.qty <= 0) return;
+    const item = items[idx];
+    if (!item) return;
+    const price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+    const lineTotal = price * s.qty;
+    total += lineTotal;
+    cartItems.push({ name: item.name, qty: s.qty, unitPrice: price, lineTotal });
+  });
+  if (cartItems.length === 0) { showToast('Your cart is empty.'); return; }
+  sessionStorage.setItem('checkoutData', JSON.stringify({
+    type: 'products',
+    items: cartItems,
+    total
   }));
   navigate('/checkout');
 }
@@ -781,62 +804,117 @@ function renderCheckout() {
     document.getElementById('app').innerHTML = `
       <div class="page-content"><div class="container" style="text-align:center;padding:120px 20px;">
         <h1>No Items Selected</h1>
-        <p>Please build your quote first, then proceed to checkout.</p>
-        <a href="/quote" class="btn btn-primary" data-link style="margin-top:20px;">Go to Quote Calculator</a>
+        <p>Please build your quote or add products to your cart first.</p>
+        <div style="margin-top:20px;display:flex;gap:12px;justify-content:center;">
+          <a href="/quote" class="btn btn-primary" data-link>Get a Quote</a>
+          <a href="/products" class="btn btn-outline" data-link>Browse Products</a>
+        </div>
       </div></div>`;
     return;
   }
 
-  const { calcState, zipData } = JSON.parse(raw);
-  const pricing = CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
-  const mult = (zipData && zipData.multiplier) ? zipData.multiplier : 1;
+  const checkoutData = JSON.parse(raw);
+  const isQuote = checkoutData.type === 'quote';
 
-  // Build order items
-  const orderItems = [];
-  pricing.categories.forEach((cat, ci) => {
-    cat.items.forEach((item, ii) => {
-      const key = ci + '_' + ii;
-      const s = calcState[key];
-      if (!s || s.qty === 0) return;
-      const adjPrice = Math.round(item.price * mult * 100) / 100;
-      const lineTotal = adjPrice * s.qty;
-      const selectedAddons = [];
-      (item.addons || []).forEach((addon, ai) => {
-        if (s.addons[ai]) {
-          const adjAddon = Math.round(addon.price * mult * 100) / 100;
-          selectedAddons.push({ name: addon.name, price: adjAddon, total: adjAddon * s.qty });
-        }
+  let orderItems = [];
+  let subtotal = 0;
+  let fee = 0;
+  let zipData = null;
+
+  if (isQuote) {
+    zipData = checkoutData.zipData;
+    const pricing = CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
+    const mult = (zipData && zipData.multiplier) ? zipData.multiplier : 1;
+
+    pricing.categories.forEach((cat, ci) => {
+      cat.items.forEach((item, ii) => {
+        const key = ci + '_' + ii;
+        const s = checkoutData.calcState[key];
+        if (!s || s.qty === 0) return;
+        const adjPrice = Math.round(item.price * mult * 100) / 100;
+        const lineTotal = adjPrice * s.qty;
+        const selectedAddons = [];
+        (item.addons || []).forEach((addon, ai) => {
+          if (s.addons[ai]) {
+            const adjAddon = Math.round(addon.price * mult * 100) / 100;
+            selectedAddons.push({ name: addon.name, price: adjAddon, total: adjAddon * s.qty });
+          }
+        });
+        orderItems.push({ name: item.name, qty: s.qty, unitPrice: adjPrice, lineTotal, addons: selectedAddons });
       });
-      orderItems.push({ name: item.name, qty: s.qty, unitPrice: adjPrice, lineTotal, addons: selectedAddons });
     });
-  });
+    fee = pricing.hiddenFee?.amount || 0;
+    orderItems.forEach(item => {
+      subtotal += item.lineTotal;
+      item.addons.forEach(a => { subtotal += a.total; });
+    });
+  } else {
+    orderItems = checkoutData.items.map(item => ({ ...item, addons: [] }));
+    orderItems.forEach(item => { subtotal += item.lineTotal; });
+  }
 
   if (orderItems.length === 0) {
     document.getElementById('app').innerHTML = `
       <div class="page-content"><div class="container" style="text-align:center;padding:120px 20px;">
         <h1>No Items Selected</h1>
-        <p>Please build your quote first, then proceed to checkout.</p>
-        <a href="/quote" class="btn btn-primary" data-link style="margin-top:20px;">Go to Quote Calculator</a>
+        <p>Please add items first.</p>
+        <a href="${isQuote ? '/quote' : '/products'}" class="btn btn-primary" data-link style="margin-top:20px;">Go Back</a>
       </div></div>`;
     return;
   }
 
-  let subtotal = 0;
-  orderItems.forEach(item => {
-    subtotal += item.lineTotal;
-    item.addons.forEach(a => { subtotal += a.total; });
-  });
-  const fee = pricing.hiddenFee?.amount || 0;
   const total = subtotal + fee;
+  const backHref = isQuote ? '/quote' : '/products';
+  const backLabel = isQuote ? 'Get a Quote' : 'Products';
+  const addressLabel = isQuote ? 'Service Address *' : 'Shipping Address *';
+
+  const scheduleHtml = isQuote ? `
+                <div class="checkout-schedule">
+                  <h3>Preferred Schedule</h3>
+                  <div class="checkout-form-grid">
+                    <div class="checkout-field">
+                      <label for="coDate">Preferred Date</label>
+                      <input type="date" id="coDate">
+                    </div>
+                    <div class="checkout-field">
+                      <label for="coTime">Preferred Time</label>
+                      <select id="coTime">
+                        <option value="">Select Time</option>
+                        <option>Morning (8am-12pm)</option>
+                        <option>Afternoon (12pm-4pm)</option>
+                        <option>Evening (4pm-8pm)</option>
+                      </select>
+                    </div>
+                    <div class="checkout-field checkout-field--full">
+                      <label for="coNotes">Special Instructions</label>
+                      <textarea id="coNotes" rows="3" placeholder="Any special requests or access instructions..."></textarea>
+                    </div>
+                  </div>
+                </div>` : '';
+
+  const orderSummaryHtml = orderItems.map(item => `
+                    <div class="checkout-line-item">
+                      <div class="checkout-line-main">
+                        <span class="checkout-line-name">${item.name} <span class="checkout-line-qty">x${item.qty}</span></span>
+                        <span class="checkout-line-price">$${item.lineTotal.toFixed(2)}</span>
+                      </div>
+                      <div class="checkout-line-unit">$${item.unitPrice.toFixed(2)} / each</div>
+                      ${(item.addons || []).map(a => `
+                        <div class="checkout-line-addon">
+                          <span>+ ${a.name} x${item.qty}</span>
+                          <span>$${a.total.toFixed(2)}</span>
+                        </div>
+                      `).join('')}
+                    </div>`).join('');
 
   document.getElementById('app').innerHTML = `
-    ${breadcrumb([{ label: 'Home', href: '/' }, { label: 'Get a Quote', href: '/quote' }, { label: 'Checkout' }])}
+    ${breadcrumb([{ label: 'Home', href: '/' }, { label: backLabel, href: backHref }, { label: 'Checkout' }])}
 
     <section class="checkout-page">
       <div class="container">
         <div class="checkout-header">
           <h1>${ICONS.shield} Secure Checkout</h1>
-          <a href="/quote" class="btn btn-sm btn-outline" data-link>Back to Quote</a>
+          <a href="${backHref}" class="btn btn-sm btn-outline" data-link>Back to ${backLabel}</a>
         </div>
 
         <div class="checkout-layout">
@@ -850,23 +928,9 @@ function renderCheckout() {
               <div class="checkout-summary-body">
                 ${zipData ? `<div class="checkout-zip-info">Pricing for <strong>${zipData.stateName}</strong> (${zipData.zip})</div>` : ''}
                 <div class="checkout-items">
-                  ${orderItems.map(item => `
-                    <div class="checkout-line-item">
-                      <div class="checkout-line-main">
-                        <span class="checkout-line-name">${item.name} <span class="checkout-line-qty">x${item.qty}</span></span>
-                        <span class="checkout-line-price">$${(item.lineTotal).toFixed(2)}</span>
-                      </div>
-                      <div class="checkout-line-unit">$${item.unitPrice.toFixed(2)} / each</div>
-                      ${item.addons.map(a => `
-                        <div class="checkout-line-addon">
-                          <span>+ ${a.name} x${item.qty}</span>
-                          <span>$${a.total.toFixed(2)}</span>
-                        </div>
-                      `).join('')}
-                    </div>
-                  `).join('')}
+                  ${orderSummaryHtml}
                 </div>
-                ${fee > 0 ? `<div class="checkout-fee"><span>${pricing.hiddenFee.label}</span><span>$${fee.toFixed(2)}</span></div>` : ''}
+                ${fee > 0 ? `<div class="checkout-fee"><span>${CMS.pricing?.hiddenFee?.label || 'Service Fee'}</span><span>$${fee.toFixed(2)}</span></div>` : ''}
 
                 <!-- Promo Code -->
                 <div class="checkout-promo">
@@ -888,22 +952,10 @@ function renderCheckout() {
 
             <!-- Trust Signals -->
             <div class="checkout-trust">
-              <div class="checkout-trust-item">
-                ${ICONS.shield}
-                <span>100% Satisfaction Guarantee</span>
-              </div>
-              <div class="checkout-trust-item">
-                ${ICONS.check}
-                <span>No Hidden Fees</span>
-              </div>
-              <div class="checkout-trust-item">
-                <span class="checkout-stars">${ICONS.star}${ICONS.star}${ICONS.star}${ICONS.star}${ICONS.star}</span>
-                <span>4.9/5 from 2,000+ Reviews</span>
-              </div>
-              <div class="checkout-trust-item">
-                ${ICONS.badge}
-                <span>IICRC Certified Technicians</span>
-              </div>
+              <div class="checkout-trust-item">${ICONS.shield}<span>100% Satisfaction Guarantee</span></div>
+              <div class="checkout-trust-item">${ICONS.check}<span>No Hidden Fees</span></div>
+              <div class="checkout-trust-item"><span class="checkout-stars">${ICONS.star}${ICONS.star}${ICONS.star}${ICONS.star}${ICONS.star}</span><span>4.9/5 from 2,000+ Reviews</span></div>
+              <div class="checkout-trust-item">${ICONS.badge}<span>IICRC Certified Technicians</span></div>
             </div>
           </div>
 
@@ -930,7 +982,7 @@ function renderCheckout() {
                     <input type="tel" id="coPhone" required oninput="checkoutValidate()">
                   </div>
                   <div class="checkout-field checkout-field--full">
-                    <label for="coAddress">Street Address *</label>
+                    <label for="coAddress">${addressLabel}</label>
                     <input type="text" id="coAddress" required oninput="checkoutValidate()">
                   </div>
                   <div class="checkout-field">
@@ -947,26 +999,9 @@ function renderCheckout() {
                   </div>
                 </div>
 
-                <div class="checkout-schedule">
-                  <h3>Preferred Schedule</h3>
-                  <div class="checkout-form-grid">
-                    <div class="checkout-field">
-                      <label for="coDate">Preferred Date</label>
-                      <input type="date" id="coDate">
-                    </div>
-                    <div class="checkout-field">
-                      <label for="coTime">Preferred Time</label>
-                      <select id="coTime">
-                        <option value="">Select Time</option>
-                        <option>Morning (8am-12pm)</option>
-                        <option>Afternoon (12pm-4pm)</option>
-                        <option>Evening (4pm-8pm)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                ${scheduleHtml}
 
-                <!-- Mock Stripe Payment Section -->
+                <!-- Stripe Payment -->
                 <div class="checkout-payment">
                   <div class="checkout-payment-header">
                     <h3>${ICONS.shield} Payment Details</h3>
@@ -975,43 +1010,19 @@ function renderCheckout() {
                       SSL Encrypted
                     </div>
                   </div>
-                  <div class="checkout-stripe-mock">
-                    <div class="checkout-stripe-card">
-                      <div class="checkout-stripe-field">
-                        <label>Card number</label>
-                        <div class="checkout-stripe-input">
-                          <span class="checkout-stripe-placeholder">1234 1234 1234 1234</span>
-                          <div class="checkout-card-brands">
-                            <svg viewBox="0 0 38 24" width="30" height="19"><rect width="38" height="24" rx="3" fill="#1A1F71"/><path d="M15.3 16.2L16.9 7.8H19.2L17.6 16.2H15.3Z" fill="white"/><path d="M24.7 8C24.2 7.8 23.4 7.6 22.4 7.6C20.1 7.6 18.5 8.8 18.5 10.5C18.5 11.7 19.5 12.4 20.3 12.8C21.1 13.2 21.4 13.5 21.4 13.9C21.4 14.5 20.7 14.8 20 14.8C19 14.8 18.5 14.6 17.7 14.3L17.4 14.1L17.1 16C17.7 16.3 18.8 16.5 20 16.5C22.5 16.5 24.1 15.3 24.1 13.5C24.1 12.6 23.5 11.9 22.3 11.3C21.6 10.9 21.1 10.7 21.1 10.2C21.1 9.8 21.6 9.4 22.5 9.4C23.3 9.4 23.9 9.5 24.3 9.7L24.5 9.8L24.7 8Z" fill="white"/><path d="M28.5 7.8H26.7C26.1 7.8 25.7 8 25.5 8.6L22.1 16.2H24.6L25.1 14.9H28.1L28.4 16.2H30.6L28.5 7.8ZM25.8 13.1L26.9 10.2L27.5 13.1H25.8Z" fill="white"/><path d="M13.8 7.8L11.5 13.4L11.2 11.9C10.8 10.5 9.4 9 7.9 8.2L10 16.2H12.5L16.3 7.8H13.8Z" fill="white"/><path d="M9.7 7.8H6L5.9 8C8.9 8.7 10.9 10.5 11.5 12.6L10.8 8.7C10.7 8 10.3 7.8 9.7 7.8Z" fill="#F9A533"/></svg>
-                            <svg viewBox="0 0 38 24" width="30" height="19"><rect width="38" height="24" rx="3" fill="#EB001B" fill-opacity="0"/><rect width="38" height="24" rx="3" fill="#F7F7F7"/><circle cx="15" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M19 7.3C20.3 8.4 21.1 10.1 21.1 12C21.1 13.9 20.3 15.6 19 16.7C17.7 15.6 16.9 13.9 16.9 12C16.9 10.1 17.7 8.4 19 7.3Z" fill="#FF5F00"/></svg>
-                            <svg viewBox="0 0 38 24" width="30" height="19"><rect width="38" height="24" rx="3" fill="#006FCF"/><path d="M6 12.3L8.4 7.3H11L13.5 16.7H11.1L10.7 15H8L7.3 16.7H5L6 12.3ZM8.5 13.3H10.3L9.3 9.5L8.5 13.3Z" fill="white"/><path d="M14 7.3H16.8L17.8 13.5L20 7.3H22.4L18.8 16.7H16.2L14 7.3Z" fill="white"/></svg>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="checkout-stripe-row">
-                        <div class="checkout-stripe-field checkout-stripe-field--half">
-                          <label>Expiration</label>
-                          <div class="checkout-stripe-input"><span class="checkout-stripe-placeholder">MM / YY</span></div>
-                        </div>
-                        <div class="checkout-stripe-field checkout-stripe-field--half">
-                          <label>CVC</label>
-                          <div class="checkout-stripe-input"><span class="checkout-stripe-placeholder">CVC</span></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="checkout-stripe-badge">
-                      <svg viewBox="0 0 60 25" width="50" height="21"><path d="M5.4 11.5c0-3.8 3.2-5.5 5.6-5.5 1.8 0 3.3.9 3.7 2.4l-1.8.8c-.3-.9-1-1.5-1.9-1.5-1.6 0-3.3 1.3-3.3 3.8 0 1.7.9 3.6 3.3 3.6.9 0 1.8-.5 2.1-1.5l1.8.6c-.5 1.7-2 2.6-3.9 2.6-3.2 0-5.6-2.1-5.6-5.3z" fill="#635BFF"/><path d="M16.4 3h2.1v13.6h-2.1V3zm5.7 4.2c2.6 0 4.4 2 4.4 4.7v.7h-6.8c.1 1.6 1.3 2.8 3 2.8 1.1 0 2-.4 2.7-1.2l1.1 1.2c-.9 1.1-2.3 1.7-3.8 1.7-2.8 0-5-1.8-5-4.9 0-2.8 2-5 4.4-5zm2.3 4c-.1-1.2-1-2.4-2.3-2.4-1.4 0-2.3 1.1-2.5 2.4h4.8z" fill="#635BFF"/><path d="M28 16.6V7.4h2.1v1.4c.7-1 1.7-1.6 3-1.6v2.2c-.2 0-.4-.1-.6-.1-1 0-2.2.7-2.4 2v5.3H28zm7 0V7.4h2.1v1.3c.6-.9 1.7-1.5 2.8-1.5 2 0 3.1 1.3 3.1 3.3v6.1h-2.1v-5.5c0-1.3-.6-2.2-1.8-2.2-1.2 0-2 .9-2 2.3v5.4H35zm10.2-12h2.2v2.1h-2.2V4.6zm0 2.8h2.1v9.2h-2.1V7.4z" fill="#635BFF"/><path d="M48 16.8c2.6 0 4.4-2 4.4-4.9 0-2.9-1.8-4.9-4.4-4.9-1.3 0-2.4.6-3 1.5V7.4h-2.1v16h2.1v-5c.6.9 1.7 1.5 3 1.5v-.1zm-.4-1.7c-1.6 0-2.8-1.3-2.8-3.2s1.2-3.2 2.8-3.2c1.6 0 2.6 1.3 2.6 3.2s-1 3.2-2.6 3.2z" fill="#635BFF"/><path d="M57.2 15.3c-.8 0-1.2-.5-1.2-1.3V9h1.8V7.4H56V4.6h-2.1v2.8h-1.4V9h1.4v5.2c0 1.8 1 2.8 2.8 2.8.5 0 1-.1 1.3-.2v-1.7c-.2.1-.5.2-.8.2z" fill="#635BFF"/></svg>
-                      <span>Payments powered by Stripe</span>
-                    </div>
-                    <p class="checkout-stripe-note">Payment form will be activated when Stripe integration is complete. Your booking will be confirmed by our team.</p>
+                  <div id="stripe-card-element" class="checkout-stripe-element"></div>
+                  <div id="card-errors" class="checkout-card-errors"></div>
+                  <div class="checkout-stripe-badge">
+                    <svg viewBox="0 0 60 25" width="50" height="21"><path d="M5.4 11.5c0-3.8 3.2-5.5 5.6-5.5 1.8 0 3.3.9 3.7 2.4l-1.8.8c-.3-.9-1-1.5-1.9-1.5-1.6 0-3.3 1.3-3.3 3.8 0 1.7.9 3.6 3.3 3.6.9 0 1.8-.5 2.1-1.5l1.8.6c-.5 1.7-2 2.6-3.9 2.6-3.2 0-5.6-2.1-5.6-5.3z" fill="#635BFF"/><path d="M16.4 3h2.1v13.6h-2.1V3zm5.7 4.2c2.6 0 4.4 2 4.4 4.7v.7h-6.8c.1 1.6 1.3 2.8 3 2.8 1.1 0 2-.4 2.7-1.2l1.1 1.2c-.9 1.1-2.3 1.7-3.8 1.7-2.8 0-5-1.8-5-4.9 0-2.8 2-5 4.4-5zm2.3 4c-.1-1.2-1-2.4-2.3-2.4-1.4 0-2.3 1.1-2.5 2.4h4.8z" fill="#635BFF"/><path d="M28 16.6V7.4h2.1v1.4c.7-1 1.7-1.6 3-1.6v2.2c-.2 0-.4-.1-.6-.1-1 0-2.2.7-2.4 2v5.3H28zm7 0V7.4h2.1v1.3c.6-.9 1.7-1.5 2.8-1.5 2 0 3.1 1.3 3.1 3.3v6.1h-2.1v-5.5c0-1.3-.6-2.2-1.8-2.2-1.2 0-2 .9-2 2.3v5.4H35zm10.2-12h2.2v2.1h-2.2V4.6zm0 2.8h2.1v9.2h-2.1V7.4z" fill="#635BFF"/><path d="M48 16.8c2.6 0 4.4-2 4.4-4.9 0-2.9-1.8-4.9-4.4-4.9-1.3 0-2.4.6-3 1.5V7.4h-2.1v16h2.1v-5c.6.9 1.7 1.5 3 1.5v-.1zm-.4-1.7c-1.6 0-2.8-1.3-2.8-3.2s1.2-3.2 2.8-3.2c1.6 0 2.6 1.3 2.6 3.2s-1 3.2-2.6 3.2z" fill="#635BFF"/><path d="M57.2 15.3c-.8 0-1.2-.5-1.2-1.3V9h1.8V7.4H56V4.6h-2.1v2.8h-1.4V9h1.4v5.2c0 1.8 1 2.8 2.8 2.8.5 0 1-.1 1.3-.2v-1.7c-.2.1-.5.2-.8.2z" fill="#635BFF"/></svg>
+                    <span>Payments powered by Stripe</span>
                   </div>
                 </div>
 
                 <!-- Submit -->
                 <button type="submit" id="checkoutSubmitBtn" class="btn btn-primary btn-lg btn-full checkout-submit-btn" disabled>
-                  Complete Booking - $${total.toFixed(2)}
+                  Pay $${total.toFixed(2)}
                 </button>
-                <p class="checkout-disclaimer">By completing this booking, you agree to our terms of service. You will receive a confirmation email with your appointment details.</p>
+                <p class="checkout-disclaimer">By completing this purchase, you agree to our terms of service. ${isQuote ? 'You will receive a confirmation email with your appointment details.' : 'Your order will be shipped to the address above.'}</p>
               </form>
             </div>
           </div>
@@ -1019,6 +1030,51 @@ function renderCheckout() {
       </div>
     </section>
   `;
+
+  // Store checkout total and type for payment processing
+  window._checkoutTotal = total;
+  window._checkoutType = checkoutData.type;
+
+  // Initialize Stripe Elements
+  initStripeCheckout();
+}
+
+async function initStripeCheckout() {
+  try {
+    const res = await fetch('/api/stripe-key');
+    if (!res.ok) throw new Error('Payment system unavailable');
+    const { publishableKey } = await res.json();
+
+    const stripe = Stripe(publishableKey);
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#1a1a2e',
+          fontFamily: '"Open Sans", sans-serif',
+          '::placeholder': { color: '#aab7c4' }
+        },
+        invalid: { color: '#e74c3c', iconColor: '#e74c3c' }
+      }
+    });
+    cardElement.mount('#stripe-card-element');
+
+    window._stripe = stripe;
+    window._cardElement = cardElement;
+    window._cardComplete = false;
+
+    cardElement.on('change', (event) => {
+      window._cardComplete = event.complete;
+      const errEl = document.getElementById('card-errors');
+      if (errEl) errEl.textContent = event.error ? event.error.message : '';
+      checkoutValidate();
+    });
+  } catch (err) {
+    console.error('Stripe init failed:', err);
+    const errEl = document.getElementById('card-errors');
+    if (errEl) errEl.textContent = 'Payment system unavailable. Please try again later.';
+  }
 }
 
 function checkoutValidate() {
@@ -1028,30 +1084,23 @@ function checkoutValidate() {
     return el && el.value.trim() !== '' && el.checkValidity();
   });
   const btn = document.getElementById('checkoutSubmitBtn');
-  if (btn) btn.disabled = !allFilled;
+  if (btn) btn.disabled = !(allFilled && window._cardComplete);
 }
 
 async function checkoutSubmit(e) {
   e.preventDefault();
-  const raw = sessionStorage.getItem('checkoutData');
-  if (!raw) return;
-  const { calcState, zipData } = JSON.parse(raw);
-  const pricing = CMS.pricing || { categories: [], hiddenFee: { label: 'Service Fee', amount: 0 } };
-  const mult = (zipData && zipData.multiplier) ? zipData.multiplier : 1;
+  const btn = document.getElementById('checkoutSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing Payment...';
 
-  const items = [];
-  pricing.categories.forEach((cat, ci) => {
-    cat.items.forEach((item, ii) => {
-      const key = ci + '_' + ii;
-      const s = calcState[key];
-      if (!s || s.qty === 0) return;
-      const adjPrice = Math.round(item.price * mult * 100) / 100;
-      const selectedAddons = (item.addons || []).filter((_, ai) => s.addons[ai]).map(a => a.name);
-      items.push({ name: item.name, qty: s.qty, price: adjPrice, addons: selectedAddons });
-    });
-  });
+  const errEl = document.getElementById('card-errors');
+  if (errEl) errEl.textContent = '';
 
-  const data = {
+  const total = window._checkoutTotal;
+  const type = window._checkoutType;
+  const isQuote = type === 'quote';
+
+  const customerData = {
     firstName: document.getElementById('coFirstName').value,
     lastName: document.getElementById('coLastName').value,
     name: document.getElementById('coFirstName').value + ' ' + document.getElementById('coLastName').value,
@@ -1061,30 +1110,120 @@ async function checkoutSubmit(e) {
     city: document.getElementById('coCity').value,
     state: document.getElementById('coState').value,
     zip: document.getElementById('coZip').value,
-    date: document.getElementById('coDate').value,
-    time: document.getElementById('coTime').value,
-    items,
-    total: document.querySelector('.checkout-total span:last-child').textContent,
   };
 
-  const btn = document.getElementById('checkoutSubmitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
+  if (isQuote) {
+    customerData.date = document.getElementById('coDate')?.value || '';
+    customerData.time = document.getElementById('coTime')?.value || '';
+    customerData.notes = document.getElementById('coNotes')?.value || '';
+  }
 
   try {
-    await fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  } catch (err) { /* ignore */ }
+    // Create payment intent on server
+    const description = isQuote ? 'Shiny Rhino Cleaning Service' : 'Shiny Rhino Product Order';
+    const piRes = await fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: total,
+        description,
+        metadata: { type, customerName: customerData.name, customerEmail: customerData.email }
+      })
+    });
 
-  sessionStorage.removeItem('checkoutData');
-  document.getElementById('app').innerHTML = `
-    <div class="page-content"><div class="container" style="text-align:center;padding:100px 20px;max-width:600px;">
-      <div class="checkout-success-icon">${ICONS.check}</div>
-      <h1 style="color:var(--green);margin-top:16px;">Booking Confirmed!</h1>
-      <p style="font-size:1.1rem;margin:16px 0;">Thank you, ${data.firstName}! We've received your cleaning request and will contact you at <strong>${data.email}</strong> to confirm your appointment.</p>
-      <p style="color:var(--text-muted);margin-bottom:32px;">A member of our team will reach out within 24 hours.</p>
-      <a href="/" class="btn btn-primary btn-lg" data-link>Back to Home</a>
-    </div></div>`;
-  bindLinks();
+    if (!piRes.ok) {
+      const err = await piRes.json();
+      throw new Error(err.error || 'Failed to create payment');
+    }
+
+    const { clientSecret } = await piRes.json();
+
+    // Confirm card payment with Stripe
+    const { error, paymentIntent } = await window._stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: window._cardElement,
+        billing_details: {
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone,
+          address: {
+            line1: customerData.address,
+            city: customerData.city,
+            state: customerData.state,
+            postal_code: customerData.zip,
+            country: 'US'
+          }
+        }
+      }
+    });
+
+    if (error) {
+      if (errEl) errEl.textContent = error.message;
+      btn.disabled = false;
+      btn.textContent = `Pay $${total.toFixed(2)}`;
+      return;
+    }
+
+    // Payment succeeded - build items for order record
+    const raw = sessionStorage.getItem('checkoutData');
+    const checkoutData = JSON.parse(raw);
+    let items = [];
+    if (isQuote) {
+      const pricing = CMS.pricing || { categories: [] };
+      const mult = (checkoutData.zipData?.multiplier) || 1;
+      pricing.categories.forEach((cat, ci) => {
+        cat.items.forEach((item, ii) => {
+          const key = ci + '_' + ii;
+          const s = checkoutData.calcState[key];
+          if (!s || s.qty === 0) return;
+          const adjPrice = Math.round(item.price * mult * 100) / 100;
+          const selectedAddons = (item.addons || []).filter((_, ai) => s.addons[ai]).map(a => a.name);
+          items.push({ name: item.name, qty: s.qty, price: adjPrice, addons: selectedAddons });
+        });
+      });
+    } else {
+      items = checkoutData.items;
+    }
+
+    // Save order
+    await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...customerData,
+        type,
+        items,
+        total: '$' + total.toFixed(2),
+        paymentIntentId: paymentIntent.id,
+        paymentStatus: paymentIntent.status
+      })
+    });
+
+    // Clear session data and cart
+    sessionStorage.removeItem('checkoutData');
+    if (!isQuote) window._cart = {};
+
+    // Show success
+    document.getElementById('app').innerHTML = `
+      <div class="page-content"><div class="container" style="text-align:center;padding:100px 20px;max-width:600px;">
+        <div class="checkout-success-icon">${ICONS.check}</div>
+        <h1 style="color:var(--green);margin-top:16px;">${isQuote ? 'Booking Confirmed!' : 'Order Confirmed!'}</h1>
+        <p style="font-size:1.1rem;margin:16px 0;">Thank you, ${customerData.firstName}! ${isQuote
+          ? `We've received your cleaning request and will contact you at <strong>${customerData.email}</strong> to confirm your appointment.`
+          : `Your order has been placed and a confirmation will be sent to <strong>${customerData.email}</strong>.`}</p>
+        <p style="color:var(--text-muted);margin-bottom:32px;">${isQuote
+          ? 'A member of our team will reach out within 24 hours.'
+          : 'You will receive tracking information once your order ships.'}</p>
+        <a href="/" class="btn btn-primary btn-lg" data-link>Back to Home</a>
+      </div></div>`;
+    bindLinks();
+
+  } catch (err) {
+    console.error('Checkout error:', err);
+    if (errEl) errEl.textContent = err.message || 'Payment failed. Please try again.';
+    btn.disabled = false;
+    btn.textContent = `Pay $${total.toFixed(2)}`;
+  }
 }
 
 // ---- Service Page ----
@@ -1219,7 +1358,7 @@ function renderProducts() {
               <span>Total</span>
               <span id="productCartTotal">$0.00</span>
             </div>
-            <button id="productCheckoutBtn" class="btn btn-primary btn-full btn-sm" style="margin-top:16px;" disabled onclick="showToast('Checkout coming soon!')">Checkout</button>
+            <button id="productCheckoutBtn" class="btn btn-primary btn-full btn-sm" style="margin-top:16px;" disabled onclick="productProceedToCheckout()">Checkout</button>
           </div>
         </div>
       </div>
