@@ -10,11 +10,13 @@ import os
 
 # Configuration
 BANNER_WIDTH = 800
-BANNER_HEIGHT = 320  # 20% shorter than 400
+BANNER_HEIGHT = 288  # 10% shorter than 320
 FONT_SIZE = 36
+OVERLAY_OPACITY = 102  # ~40% opacity dark overlay (0.4 * 255)
 BASE_IMAGE = r"C:\Users\User\.openclaw\media\inbound\file_136---52d38ce9-1d11-4351-9713-7cb08dee8d7f.jpg"
 OUTPUT_DIR = r"C:\Users\User\Dropbox\coding\Shiny Rhino\public\locations\images"
-FONT_PATH = "C:/Windows/Fonts/arialbd.ttf"
+# Inter Bold font - bundled in location-generator folder
+FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Inter-Bold.ttf")
 
 LOCATIONS = [
     ("Los Angeles", "CA", "california", "los-angeles"),
@@ -52,6 +54,12 @@ def generate_image(city, state_abbrev, state_slug, city_slug):
     top = (new_h - BANNER_HEIGHT) // 2
     img = img.crop((left, top, left + BANNER_WIDTH, top + BANNER_HEIGHT))
 
+    # Apply semi-transparent dark overlay for text readability
+    overlay = Image.new("RGBA", (BANNER_WIDTH, BANNER_HEIGHT), (0, 0, 0, OVERLAY_OPACITY))
+    img = img.convert("RGBA")
+    img = Image.alpha_composite(img, overlay)
+    img = img.convert("RGB")
+
     draw = ImageDraw.Draw(img)
     text = f"CARPET CLEANING IN {city.upper()}, {state_abbrev.upper()}"
 
@@ -74,11 +82,7 @@ def generate_image(city, state_abbrev, state_slug, city_slug):
     x = (BANNER_WIDTH - text_width) // 2
     y = (BANNER_HEIGHT - text_height) // 2
 
-    # Dark shadow for readability (multiple passes)
-    for dx, dy in [(-2,-2), (2,-2), (-2,2), (2,2), (0,2), (2,0), (-2,0), (0,-2)]:
-        draw.text((x + dx, y + dy), text, fill=(0, 0, 0), font=actual_font)
-
-    # White main text
+    # Clean white text - no shadow/stroke needed thanks to dark overlay
     draw.text((x, y), text, fill="white", font=actual_font)
 
     filename = f"{state_slug}_{city_slug}_cleaning.webp"
