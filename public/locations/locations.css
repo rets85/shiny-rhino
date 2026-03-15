@@ -103,3 +103,18 @@
   .loc-pricing-table td { border-bottom: none; padding: 4px 0; }
   .loc-pricing-table td::before { content: attr(data-label); font-weight: 700; color: var(--dark); display: block; font-size: 0.8rem; text-transform: uppercase; }
 }
+
+/* Hero Image */
+.loc-hero {
+  width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.loc-hero img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  max-height: 400px;
+}
