@@ -106,7 +106,7 @@
 
 /* Hero Image */
 .loc-hero {
-  max-height: 400px;
+  max-height: 320px;
   overflow: hidden;
   margin-bottom: 1.5rem;
   border-radius: 8px;
@@ -116,5 +116,5 @@
   height: auto;
   display: block;
   object-fit: cover;
-  max-height: 400px;
+  max-height: 320px;
 }
