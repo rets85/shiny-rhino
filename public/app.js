@@ -621,6 +621,8 @@ async function calcZipLookup(e, isCommercial) {
     }
     window._zipData = { zip, state: data.state, stateName: data.stateName, multiplier: data.multiplier };
     sessionStorage.setItem('zipData', JSON.stringify(window._zipData));
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({'event': 'zipcode_submission'});
     renderQuote(isCommercial);
     bindLinks();
   } catch (err) {
@@ -780,6 +782,8 @@ async function calcSubmit(e) {
   try {
     await fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
   } catch (e) { /* ignore */ }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({'event': 'form_submission'});
   document.getElementById('calcModal').querySelector('.calc-modal-content').innerHTML = `
     <h2 style="color:var(--green);">Request Submitted!</h2>
     <p>We'll contact you shortly to confirm your cleaning appointment.</p>
@@ -790,6 +794,8 @@ async function calcSubmit(e) {
 function handleZipQuote(e) {
   e.preventDefault();
   const zip = e.target.querySelector('input').value;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({'event': 'zipcode_submission'});
   navigate(`/quote`);
   setTimeout(() => {
     const zipInput = document.getElementById('quoteZip');
@@ -1657,6 +1663,8 @@ async function handleContact(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({'event': 'form_submission'});
   form.innerHTML = '<div style="text-align:center;padding:40px;"><h3 style="color:var(--green);">Message Sent!</h3><p>We\'ll get back to you within 24 hours.</p></div>';
 }
 
