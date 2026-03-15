@@ -652,6 +652,7 @@ function calcGetMultiplier() {
 function calcChangeQty(key, delta) {
   const state = window._calcState;
   if (!state[key]) state[key] = { qty: 0, addons: {} };
+  const oldQty = state[key].qty;
   state[key].qty = Math.max(0, state[key].qty + delta);
 
   document.getElementById('calcQty_' + key).textContent = state[key].qty;
@@ -661,6 +662,44 @@ function calcChangeQty(key, delta) {
     state[key].addons = {};
     addonsEl?.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
   }
+
+  // GA4 ecommerce: add_to_cart / remove_from_cart
+  if (state[key].qty > oldQty) {
+    const pricing = calcGetPricing();
+    const [ci, ii] = key.split('_').map(Number);
+    const item = pricing.categories[ci]?.items[ii];
+    if (item) {
+      const mult = calcGetMultiplier();
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null }); // clear
+      window.dataLayer.push({
+        event: 'add_to_cart',
+        ecommerce: {
+          currency: 'USD',
+          value: Math.round(item.price * mult * 100) / 100,
+          items: [{ item_name: item.name, price: Math.round(item.price * mult * 100) / 100, quantity: 1 }]
+        }
+      });
+    }
+  } else if (state[key].qty < oldQty) {
+    const pricing = calcGetPricing();
+    const [ci, ii] = key.split('_').map(Number);
+    const item = pricing.categories[ci]?.items[ii];
+    if (item) {
+      const mult = calcGetMultiplier();
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null });
+      window.dataLayer.push({
+        event: 'remove_from_cart',
+        ecommerce: {
+          currency: 'USD',
+          value: Math.round(item.price * mult * 100) / 100,
+          items: [{ item_name: item.name, price: Math.round(item.price * mult * 100) / 100, quantity: 1 }]
+        }
+      });
+    }
+  }
+
   calcUpdateSummary();
 }
 
@@ -711,6 +750,29 @@ function calcProceedToCheckout() {
   const state = window._calcState;
   const hasItems = Object.values(state).some(s => s.qty > 0);
   if (!hasItems) { showToast('Please add at least one item first.'); return; }
+
+  // GA4 ecommerce: begin_checkout
+  const pricing = calcGetPricing();
+  const mult = calcGetMultiplier();
+  const ecomItems = [];
+  let ecomTotal = 0;
+  pricing.categories.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const k = ci + '_' + ii;
+      const s = state[k];
+      if (!s || s.qty === 0) return;
+      const adjPrice = Math.round(item.price * mult * 100) / 100;
+      ecomTotal += adjPrice * s.qty;
+      ecomItems.push({ item_name: item.name, price: adjPrice, quantity: s.qty });
+    });
+  });
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ ecommerce: null });
+  window.dataLayer.push({
+    event: 'begin_checkout',
+    ecommerce: { currency: 'USD', value: Math.round(ecomTotal * 100) / 100, items: ecomItems }
+  });
+
   sessionStorage.setItem('checkoutData', JSON.stringify({
     type: 'quote',
     calcState: state,
@@ -734,6 +796,19 @@ function productProceedToCheckout() {
     cartItems.push({ name: item.name, qty: s.qty, unitPrice: price, lineTotal });
   });
   if (cartItems.length === 0) { showToast('Your cart is empty.'); return; }
+
+  // GA4 ecommerce: begin_checkout (products)
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ ecommerce: null });
+  window.dataLayer.push({
+    event: 'begin_checkout',
+    ecommerce: {
+      currency: 'USD',
+      value: Math.round(total * 100) / 100,
+      items: cartItems.map(i => ({ item_name: i.name, price: i.unitPrice, quantity: i.qty }))
+    }
+  });
+
   sessionStorage.setItem('checkoutData', JSON.stringify({
     type: 'products',
     items: cartItems,
@@ -1203,6 +1278,19 @@ async function checkoutSubmit(e) {
         paymentIntentId: paymentIntent.id,
         paymentStatus: paymentIntent.status
       })
+    });
+
+    // GA4 ecommerce: purchase
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event: 'purchase',
+      ecommerce: {
+        transaction_id: paymentIntent.id,
+        currency: 'USD',
+        value: total,
+        items: items.map(i => ({ item_name: i.name, price: i.price || i.unitPrice, quantity: i.qty }))
+      }
     });
 
     // Clear session data and cart
